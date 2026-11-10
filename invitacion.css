@@ -430,49 +430,4 @@ body.listo .sobre-cuerpo { animation: entra .7s cubic-bezier(.2, 1.4, .4, 1) bot
 .n8  { top: 33%; width: 22%; opacity: .7;  animation-duration: 74s; animation-delay: -50s; }
 .n9  { top: 10%; width: 28%; opacity: .85; animation-duration: 56s; animation-delay: -60s; }
 .n10 { top: 25%; width: 40%; opacity: .9;  animation-duration: 44s; animation-delay: -12s; }
-
-/* =====================================================================
-   SLIDES: cada sección ocupa exactamente la pantalla; se pasa deslizando
-   ===================================================================== */
-html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
-body.cerrado { scroll-snap-type: none; }
-.slide { position: relative; min-height: 100svh; scroll-snap-align: start; scroll-snap-stop: always;
-  display: flex; flex-direction: column; justify-content: center; padding-bottom: 64px; }
-.slide-in { display: flex; flex-direction: column; will-change: transform, opacity; }
-.slide-1 { justify-content: flex-start; padding-top: 28px; }
-.slide-1 .cabecera { padding: 4px 70px 0; gap: 2px; }
-.slide-1 .cab-logo { width: 54px; height: 54px; }
-.slide-1 .titulo { font-size: 19px; }
-.slide-1 .mensaje { padding: 6px 12px 8px; }
-.slide-1 .evento { font-size: clamp(40px, 12.5vw, 64px); }
-/* la escena se ajusta al alto que queda, sin perder su proporción */
-.slide-1 .hero { margin: 4px auto 0; aspect-ratio: 1080 / 1350; width: auto;
-  height: min(calc(100svh - 345px), calc((min(480px, 100vw) - 36px) * 1.25)); }
-.slide-1 .pareja-pista { margin-top: 6px; }
-.slide-titulo { margin: 0 0 6px; text-align: center; font: 400 34px "Lilita One", "Baloo 2", sans-serif; color: var(--morado); }
-.slide-2 .texto { margin-top: 0; }
-.slide-3 .ubicacion { padding-top: 0; }
-.slide-3 .pie { padding-top: 22px; }
-.slide-3 .pie-logo { width: 150px; margin: 10px auto 16px; }
-.slide-3 .mapa { aspect-ratio: 16 / 11; }
-/* botón "siguiente" que rebota */
-.siguiente { position: absolute; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom)); translate: -50% 0;
-  display: flex; flex-direction: column; align-items: center; gap: 0; border: 0; background: none; cursor: pointer;
-  font: 800 13px "Baloo 2", sans-serif; letter-spacing: .12em; text-transform: uppercase; color: var(--fucsia);
-  animation: rebote 1.6s ease-in-out infinite; -webkit-tap-highlight-color: transparent; }
-@keyframes rebote { 50% { transform: translateY(7px); } }
-/* puntos laterales */
-.puntos { position: fixed; left: 10px; top: 50%; translate: 0 -50%; z-index: 14; display: grid; gap: 10px; }
-.puntos[hidden] { display: none; }
-.puntos button { width: 10px; height: 10px; padding: 0; border-radius: 99px; border: 0; cursor: pointer;
-  background: rgba(31, 36, 48, .22); transition: height .3s, background .3s; }
-.puntos button.activo { height: 26px; background: var(--fucsia); }
-@media (min-width: 600px) { .puntos { left: calc(50% - 240px - 26px); } }
-/* las decoraciones de abajo se reparten en los slides 2 y 3 */
-.deco-tinya { top: calc(100svh + 40px); }
-.deco-pompones { top: calc(100svh + 70px); }
-.deco-pompones-2 { top: calc(200svh + 30px); bottom: auto; }
-.c5 { top: calc(100svh + 260px); } .c6 { top: calc(100svh + 420px); }
-.c7 { top: calc(200svh + 200px); bottom: auto; } .c8 { top: calc(200svh + 120px); bottom: auto; }
 .f-lado b { white-space: nowrap; }
-.siguiente { z-index: 6; } .slide-1 .pareja-pista { display: none; }

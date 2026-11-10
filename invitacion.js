@@ -460,7 +460,7 @@ const EVENTO = {
     iniciarMusica();
     const sobre = $("#sobre");
     const mostrar = () => { document.body.classList.remove("cerrado"); $("#invitacion").setAttribute("aria-hidden", "false"); };
-    if (!G || sinAnimacion) { window.__arcoEntrada(); mostrar(); $$(".capa-rosas").forEach((r) => (r.style.opacity = 1)); iniciarCarnaval(); sobre.remove(); $$(".capa-casual").forEach((c) => (c.style.display = "none")); colorear(semillaInicial, false); revelarTodo(); iniciarSlides(); return; }
+    if (!G || sinAnimacion) { window.__arcoEntrada(); mostrar(); $$(".capa-rosas").forEach((r) => (r.style.opacity = 1)); iniciarCarnaval(); sobre.remove(); $$(".capa-casual").forEach((c) => (c.style.display = "none")); colorear(semillaInicial, false); revelarTodo(); return; }
     G.timeline()
       .to(".sello", { scale: 1.25, duration: 0.15, ease: "power1.out" })
       .to(".sello", { scale: 0, rotation: 200, opacity: 0, duration: 0.35, ease: "back.in(2)" })
@@ -637,41 +637,12 @@ const EVENTO = {
 
     });
     revelarAlBajar();
-    iniciarSlides();
-  }
-
-  /* ---------- slides: navegación y transición ---------- */
-  function iniciarSlides() {
-    const slides = $$(".slide");
-    const puntos = $$("#puntos button");
-    $("#puntos").hidden = false;
-    const ir = (n) => $(`#slide-${n}`).scrollIntoView({ behavior: "smooth" });
-    $$("[data-ir]").forEach((b) => b.addEventListener("click", () => ir(+b.dataset.ir)));
-    const obs = new IntersectionObserver((es) => es.forEach((e) => {
-      if (!e.isIntersecting) return;
-      const n = slides.indexOf(e.target);
-      puntos.forEach((p, i) => p.classList.toggle("activo", i === n));
-    }), { threshold: 0.55 });
-    slides.forEach((s) => obs.observe(s));
-    if (!G || !window.ScrollTrigger || suave) return;
-    // transición: el slide que se va se aleja (más pequeño y tenue); el que llega entra desde abajo
-    slides.forEach((s, i) => {
-      const dentro = $(".slide-in", s);
-      if (i < slides.length - 1) {
-        G.fromTo(dentro, { scale: 1, opacity: 1, y: 0 }, { scale: 0.88, opacity: 0.15, y: -60, ease: "none",
-          scrollTrigger: { trigger: s, start: "top top", end: "bottom top", scrub: true } });
-      }
-      if (i > 0) {
-        G.from(dentro.children, { y: 70, opacity: 0, rotation: () => G.utils.random(-3, 3), duration: 0.7,
-          ease: "back.out(1.4)", stagger: 0.09, scrollTrigger: { trigger: s, start: "top 65%" } });
-      }
-    });
   }
 
   function revelarAlBajar() {
     if (!window.ScrollTrigger) return revelarTodo();
     G.registerPlugin(ScrollTrigger);
-    $$(".revelar").filter((n) => !n.closest(".slide")).forEach((n) => {
+    $$(".revelar").forEach((n) => {
       G.from(n, { y: 40, opacity: 0, duration: 0.7, ease: "power3.out",
         scrollTrigger: { trigger: n, start: "top 92%" } });
     });
