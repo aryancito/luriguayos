@@ -369,18 +369,18 @@ body.listo .sobre-cuerpo { animation: entra .7s cubic-bezier(.2, 1.4, .4, 1) bot
 
 /* ---------- cielo animado ---------- */
 .cielo { position: absolute; inset: 0; overflow: hidden;
-  background: linear-gradient(180deg, #8fd0fb 0%, #bfe6ff 45%, #e8f6ff 70%, #fff7e6 100%); }
+  background: linear-gradient(180deg, #5fb2ee 0%, #93cdf6 35%, #c9e8fd 62%, #eef8ff 80%, #fff6e3 100%); }
 .cielo .sol { position: absolute; top: 9%; right: 14%; width: 70px; height: 70px; border-radius: 50%;
   background: radial-gradient(circle, #fffbe0 0 40%, #ffe27a 60%, rgba(255, 226, 122, 0) 72%);
   box-shadow: 0 0 60px 30px rgba(255, 236, 160, .55); animation: brillo-sol 5s ease-in-out infinite; }
 @keyframes brillo-sol { 50% { transform: scale(1.08); } }
-.nube { position: absolute; left: 0; will-change: transform; filter: drop-shadow(0 6px 8px rgba(80, 140, 190, .18));
+.nube { position: absolute; left: 0; will-change: transform;
   animation: pasar linear infinite; }
 /* tres planos: las lejanas pequeñas y lentas, las cercanas grandes y más rápidas */
-.n1 { top: 8%;  width: 26%; opacity: .75; animation-duration: 70s; animation-delay: -10s; }
+.n1 { top: 7%;  width: 34%; opacity: .9; animation-duration: 70s; animation-delay: -10s; }
 .n2 { top: 17%; width: 38%; opacity: .95; animation-duration: 48s; animation-delay: -30s; }
-.n3 { top: 4%;  width: 20%; opacity: .6;  animation-duration: 90s; animation-delay: -55s; }
+.n3 { top: 3%;  width: 22%; opacity: .7;  animation-duration: 90s; animation-delay: -55s; }
 .n4 { top: 27%; width: 30%; opacity: .85; animation-duration: 58s; animation-delay: -5s; }
-.n5 { top: 13%; width: 44%; opacity: .9;  animation-duration: 40s; animation-delay: -22s; }
+.n5 { top: 14%; width: 46%; opacity: .95; animation-duration: 40s; animation-delay: -22s; }
 @keyframes pasar { from { transform: translateX(-120%); } to { transform: translateX(260%); } }
 @media (prefers-reduced-motion: reduce) { .nube { animation-duration: 240s; } }
