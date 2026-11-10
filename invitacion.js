@@ -191,7 +191,7 @@ const EVENTO = {
     polo: ["#ffffff", "#f4f1ea", "#e86a8a", "#7bb7e0", "#ffd166", "#a78bfa", "#2b2b2b", "#2e9e8f", "#e76f51", "#3d5a80"],
     jean: ["#35507e", "#2b3a55", "#4a6fa5", "#5b7db1"],
   };
-  const LUZ_NIVEL = [-0.13, 0, 0.05, 0.09]; // sombra, base, -, luz
+  const LUZ_NIVEL = [-0.2, 0, -0.08, 0.08]; // pliegue, base, sombra suave, luz (nivel 4: costura)
   const casual = [];
   const azar = (lista) => lista[Math.floor(Math.random() * lista.length)];
 
@@ -214,7 +214,10 @@ const EVENTO = {
       c.tonos.forEach((t) => {
         const path = document.createElementNS(NS, "path");
         path.setAttribute("d", t.d);
-        path.setAttribute("fill", exacto || hslAHex(base.h, base.s, clamp(base.l + LUZ_NIVEL[t.nivel], 0.04, 0.97)));
+        // tonos claros (blanco/crema) oscurecen menos; la costura del jean es dorada
+        const factor = base.l > 0.85 ? 0.55 : 1;
+        path.setAttribute("fill", exacto || (t.nivel === 4 ? "#d9a441"
+          : hslAHex(base.h, base.s, clamp(base.l + LUZ_NIVEL[t.nivel] * factor, 0.04, 0.97))));
         capa.appendChild(path);
       });
       casual.push({ capa, reemplaza: c.reemplaza });
