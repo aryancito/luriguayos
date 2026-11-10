@@ -9,9 +9,54 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="logo-marca.png">
-<link rel="stylesheet" href="invitacion.css?v=35">
+<link rel="stylesheet" href="invitacion.css?v=37">
 </head>
 <body class="cerrado">
+
+<!-- Pantalla de carga: se ve hasta que todo está descargado -->
+<div id="cargador" class="cargador" role="status" aria-live="polite">
+  <div class="carga-logo">
+    <svg class="carga-anillo" viewBox="0 0 120 120" aria-hidden="true">
+      <circle cx="60" cy="60" r="54" fill="none" stroke="#f1edf7" stroke-width="8"/>
+      <circle cx="60" cy="60" r="54" fill="none" stroke="url(#carga-grad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="110 230"/>
+      <defs><linearGradient id="carga-grad"><stop offset="0" stop-color="#f72585"/><stop offset=".5" stop-color="#ffbe0b"/><stop offset="1" stop-color="#3a86ff"/></linearGradient></defs>
+    </svg>
+    <img src="logo-marca.png" alt="" width="64" height="64">
+  </div>
+  <p class="carga-texto">Preparando la invitación… <b id="carga-pct">0%</b></p>
+  <div class="carga-barra"><i id="carga-barra"></i></div>
+  <p class="carga-sub">Asociación de Luriguayos Revelación Fanáticos Juli</p>
+</div>
+<script>
+  // progreso: archivos ya descargados (scripts e imágenes) y un avance suave
+  // por tiempo, para que en datos lentos nunca parezca congelado
+  (function () {
+    var listos = 0, hecho = false, t0 = Date.now(), visto = 0;
+    var pct = document.getElementById("carga-pct"), barra = document.getElementById("carga-barra");
+    function total() { return Math.max(1, document.querySelectorAll("script[src], .hero img, .deco img").length); }
+    function pintar() {
+      if (hecho) return;
+      var real = listos / total() * 100;
+      var tiempo = 90 * (1 - Math.exp(-(Date.now() - t0) / 9000)); // se acerca a 90% sin llegar
+      visto = Math.max(visto, Math.min(99, Math.max(real, tiempo)));
+      pct.textContent = Math.round(visto) + "%"; barra.style.width = visto + "%";
+    }
+    document.addEventListener("load", function (e) {
+      var t = e.target && e.target.tagName;
+      if (t === "SCRIPT" || t === "IMG") { listos++; pintar(); }
+    }, true);
+    var reloj = setInterval(pintar, 250);
+    function terminar() {
+      if (hecho) return; hecho = true; clearInterval(reloj);
+      pct.textContent = "100%"; barra.style.width = "100%";
+      var c = document.getElementById("cargador");
+      setTimeout(function () { c.classList.add("fuera"); document.body.classList.add("listo"); }, 250);
+      setTimeout(function () { c.remove(); }, 1000);
+    }
+    window.addEventListener("load", terminar);
+    setTimeout(terminar, 25000); // nunca dejar a nadie esperando para siempre
+  })();
+</script>
 
 <!-- Sobre: pantalla inicial, se abre al tocar -->
 <script>
@@ -71,8 +116,15 @@
 
   <section class="hero">
     <!-- escena: el arco de Juli (fondo.py) y la pareja de danzantes -->
-    <img id="img-fondo" class="hero-capa" src="data/fondo.svg?v=2" alt="" aria-hidden="true">
-    <img id="img-arco" class="hero-capa" src="data/arco.svg?v=2" alt="" aria-hidden="true">
+    <!-- cielo claro con nubes que pasan (detrás del arco y del pueblo) -->
+    <div class="cielo" aria-hidden="true">
+      <i class="sol"></i>
+      <img class="nube n1" src="img/nube.svg" alt=""><img class="nube n2" src="img/nube.svg" alt="">
+      <img class="nube n3" src="img/nube.svg" alt=""><img class="nube n4" src="img/nube.svg" alt="">
+      <img class="nube n5" src="img/nube.svg" alt="">
+    </div>
+    <img id="img-fondo" class="hero-capa" src="data/fondo.svg?v=3" alt="" aria-hidden="true">
+    <img id="img-arco" class="hero-capa" src="data/arco.svg?v=3" alt="" aria-hidden="true">
     <!-- foto real del arco (recortada): aparece encima del vectorial cuando termina de cargar -->
     <img id="img-arco-real" class="hero-capa" src="data/arco-real.webp" alt="" aria-hidden="true" decoding="async">
     <div class="hero-velo" aria-hidden="true"></div>
@@ -157,6 +209,6 @@
 <script defer src="motor.js?v=4"></script>
 <script defer src="silueta.js?v=1"></script>
 <script defer src="carnaval.js?v=2"></script>
-<script defer src="invitacion.js?v=34"></script>
+<script defer src="invitacion.js?v=35"></script>
 </body>
 </html>
