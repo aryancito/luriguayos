@@ -252,8 +252,9 @@ const EVENTO = {
         capa.appendChild(paths[t.id] = path);
       });
       const [x1, y1, x2, y2] = p.caja;
-      // sandalias y borla se ven desde el inicio (cubren pies y mano)
-      const fija = /sandalias|borla/.test(p.id);
+      // las sandalias se ven desde el inicio (cubren los pies); el pompón
+      // (borla) aparece recién al final del "modo luriguayo"
+      const fija = /sandalias/.test(p.id);
       const st = { pieza: p, paths, capa, fija, origen: origen([(x1 + x2) / 2, (y1 + y2) / 2]) };
       prendas.push(st);
       figuras[p.figura].prendas.push(st);
@@ -473,7 +474,7 @@ const EVENTO = {
   // ella: transformación estilo Sailor Moon
   function transformarElla(tl) {
     const ella = figuras.mujer;
-    const suyas = ella.prendas.filter((p) => !p.fija).sort((a, b) => b.pieza.caja[3] - a.pieza.caja[3]);
+    const suyas = ella.prendas.filter((p) => !p.fija && !/borla/.test(p.pieza.id)).sort((a, b) => b.pieza.caja[3] - a.pieza.caja[3]);
     const [ox, oy] = pct(CENTRO_ELLA);
     if (suave) {  // con "reducir movimiento": fundido sencillo
       tl.to(ella.casual, { opacity: 0, duration: 0.6 }).to(suyas.map((p) => p.capa), { opacity: 1, duration: 0.6 }, "<");
@@ -503,6 +504,17 @@ const EVENTO = {
     tl.add(() => chispas(CENTRO_ELLA, 36), ">-0.1")
       .to(".pareja", { scale: 1, duration: 0.8, ease: "power2.inOut" }, "+=0.35")
       .to(".transfo", { opacity: 0, duration: 0.8 }, "<");
+  }
+
+  // remate: el pompón aparece entre sus manos con un estallido
+  function aparecePompon(tl) {
+    const pompon = prendas.find((p) => /borla/.test(p.pieza.id));
+    if (!pompon) return;
+    if (suave) { tl.to(pompon.capa, { opacity: 1, duration: 0.6 }); return; }
+    tl.fromTo(pompon.capa, { opacity: 0, scale: 0, rotation: -200, transformOrigin: pompon.origen },
+      { opacity: 1, scale: 1, rotation: 0, duration: 0.7, ease: "back.out(2.2)", immediateRender: false }, "+=0.15")
+      .add(() => { chispas(centro(pompon), 40); window.Carnaval && Carnaval.lluvia(8); }, "-=0.3")
+      .to(pompon.capa, { scale: 1.15, duration: 0.15, yoyo: true, repeat: 1 });
   }
 
   // él: sale corriendo por la derecha y vuelve de un salto, ya vestido
@@ -556,6 +568,7 @@ const EVENTO = {
       .to("#cambio", { opacity: 0, y: -14, duration: 0.35 }, "+=0.6");
     transformarElla(tl);
     correrEl(tl);
+    aparecePompon(tl);
     // ya tapada por el traje, la ropa casual se retira (menos que dibujar)
     tl.set(".capa-casual", { display: "none" });
     tl.add(() => { colorear(semillaInicial); alternarColores(); }, "-=0.2")
