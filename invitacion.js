@@ -29,7 +29,10 @@ const EVENTO = {
   const ESCENA = window.ESCENA;
   const NS = "http://www.w3.org/2000/svg";
   const params = new URLSearchParams(location.search);
-  const sinAnimacion = params.has("sinanim") || matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // la historia del cambio de vestuario se cuenta siempre; con "reducir
+  // movimiento" en el celular las prendas aparecen con fundido, sin volar
+  const sinAnimacion = params.has("sinanim");
+  const suave = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
@@ -434,13 +437,14 @@ const EVENTO = {
       .from([...$$(".capa-cuerpo, .capa-casual"), ...prendas.filter((p) => p.fija).map((p) => p.capa)],
         { opacity: 0, y: 40, duration: 0.7, ease: "power2.out" }, "-=0.2")
       // 4) cambio de vestuario: el traje cae pieza por pieza sobre la ropa casual
-      .fromTo("#cambio", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2.5)" }, "+=1.1")
+      .fromTo("#cambio", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2.5)" }, "+=0.6")
       .add(() => window.Carnaval && Carnaval.lluvia(14), "-=0.2")
       .to("#cambio", { opacity: 0, y: -14, duration: 0.35 }, "+=0.7");
     const sueltas = prendas.filter((p) => !p.fija);
     sueltas.sort((a, b) => b.pieza.caja[3] - a.pieza.caja[3]).forEach((st, i) => {
-      tl.from(st.capa, { y: -90, opacity: 0, scale: 0.85, transformOrigin: st.origen,
-        duration: 0.55, ease: "back.out(1.6)" }, i === 0 ? "-=0.3" : "-=0.42");
+      tl.from(st.capa, suave ? { opacity: 0, duration: 0.5 }
+        : { y: -90, opacity: 0, scale: 0.85, transformOrigin: st.origen, duration: 0.55, ease: "back.out(1.6)" },
+        i === 0 ? "-=0.3" : "-=0.42");
       const reemplazadas = casual.filter((c) => c.reemplaza === st.pieza.id).map((c) => c.capa);
       if (reemplazadas.length) tl.to(reemplazadas, { opacity: 0, duration: 0.3 }, "-=0.25");
     });
