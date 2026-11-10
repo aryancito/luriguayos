@@ -404,7 +404,7 @@ const EVENTO = {
     iniciarMusica();
     const sobre = $("#sobre");
     const mostrar = () => { document.body.classList.remove("cerrado"); $("#invitacion").setAttribute("aria-hidden", "false"); };
-    if (!G || sinAnimacion) { mostrar(); iniciarCarnaval(); sobre.remove(); $$(".capa-casual").forEach((c) => (c.style.display = "none")); colorear(semillaInicial, false); revelarTodo(); return; }
+    if (!G || sinAnimacion) { window.__arcoEntrada(); mostrar(); iniciarCarnaval(); sobre.remove(); $$(".capa-casual").forEach((c) => (c.style.display = "none")); colorear(semillaInicial, false); revelarTodo(); return; }
     G.timeline()
       .to(".sello", { scale: 1.25, duration: 0.15, ease: "power1.out" })
       .to(".sello", { scale: 0, rotation: 200, opacity: 0, duration: 0.35, ease: "back.in(2)" })
@@ -423,7 +423,9 @@ const EVENTO = {
     tl.from(".aguayo", { scaleX: 0, transformOrigin: "left center", duration: 0.6, ease: "power2.out" })
       .from("#img-fondo", { opacity: 0, scale: 1.06, duration: 0.9, ease: "power1.out" }, "<")
       // el arco se levanta desde la base
-      .from("#img-arco", { y: 80, opacity: 0, scale: 0.94, transformOrigin: "50% 70%", duration: 1.2, ease: "power3.out" }, "-=0.4")
+      .from("#img-arco, #img-arco-real", { y: 80, scale: 0.94, transformOrigin: "50% 70%", duration: 1.2, ease: "power3.out" }, "-=0.4")
+      .from("#img-arco", { opacity: 0, duration: 1.2, ease: "power3.out" }, "<")
+      .add(() => window.__arcoEntrada(), "-=0.2")
       // 2) el título sobre el cielo
       .from(".kicker", { y: 20, opacity: 0, duration: 0.4 }, "-=0.4")
       .from(".titulo", { y: 40, opacity: 0, scale: 0.9, duration: 0.7, ease: "back.out(1.7)" }, "-=0.2")
@@ -489,6 +491,15 @@ const EVENTO = {
   const semillaInicial = Math.floor(Math.random() * 1e6);
 
   rellenar();
+
+  // foto real del arco: se funde sobre el vectorial cuando ya está descargada
+  // y cuando terminó la entrada del arco (antes no, para no tapar la animación)
+  const arcoReal = $("#img-arco-real");
+  let arcoListo = false, entradaLista = false;
+  const mostrarArcoReal = () => { if (arcoListo && entradaLista) arcoReal.classList.add("visible"); };
+  if (arcoReal.complete && arcoReal.naturalWidth) arcoListo = true;
+  else arcoReal.addEventListener("load", () => { arcoListo = true; mostrarArcoReal(); });
+  window.__arcoEntrada = () => { entradaLista = true; mostrarArcoReal(); };
   construirPareja();
   cuentaRegresiva();
   if (G) G.set("#toast", { xPercent: -50, y: 30 });

@@ -342,3 +342,6 @@ body.cerrado .invitacion { visibility: hidden; }
 body.cargando .sello { animation: latido .8s ease-in-out infinite; }
 @keyframes latido { 50% { transform: translate(-50%, -50%) scale(1.1); } }
 .sello { touch-action: manipulation; }
+
+#img-arco-real { opacity: 0; transition: opacity 1.2s ease; filter: brightness(1.12) saturate(1.08); }
+#img-arco-real.visible { opacity: 1; }
