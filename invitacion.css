@@ -422,3 +422,11 @@ body.listo .sobre-cuerpo { animation: entra .7s cubic-bezier(.2, 1.4, .4, 1) bot
 .rosas-vuelan { position: fixed; left: 0; top: 0; z-index: 30; pointer-events: none; opacity: 0;
   will-change: transform; filter: drop-shadow(0 6px 8px rgba(120, 0, 20, .35)); }
 .espuma { box-shadow: none; }
+
+/* más nubes, sin sol: cielo de altura con cúmulos a distintas alturas */
+.cielo .sol { display: none; }
+.n6  { top: 22%; width: 26%; opacity: .8;  animation-duration: 64s; animation-delay: -40s; }
+.n7  { top: 1%;  width: 30%; opacity: .75; animation-duration: 80s; animation-delay: -18s; }
+.n8  { top: 33%; width: 22%; opacity: .7;  animation-duration: 74s; animation-delay: -50s; }
+.n9  { top: 10%; width: 28%; opacity: .85; animation-duration: 56s; animation-delay: -60s; }
+.n10 { top: 25%; width: 40%; opacity: .9;  animation-duration: 44s; animation-delay: -12s; }
