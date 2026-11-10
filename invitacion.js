@@ -15,7 +15,7 @@ const EVENTO = {
   tipo: "Recepción",
   mensaje: "Será un honor compartir contigo una velada de música, danza y tradición. ¡Acompáñanos!",
   fecha: "2026-11-23",
-  hora: "",
+  hora: "17:00",
   duracionHoras: 5,
   lugar: "Salón de Eventos Enmanuel",
   direccion: "Juli, Puno",
