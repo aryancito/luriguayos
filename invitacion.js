@@ -185,7 +185,10 @@ const EVENTO = {
     (ESCENA.casual || []).forEach((c) => {
       const capa = capaSvg("capa-casual");
       $("#lienzo").insertBefore(capa, antesDe);
-      const exacto = c.color === "cabello" ? ESCENA.cabello.color : c.color === "piel" ? ESCENA.silueta.color : null;
+      const piel = hexAHsl(ESCENA.silueta.color);
+      const exacto = c.color === "cabello" ? ESCENA.cabello.color
+        : c.color === "piel" ? ESCENA.silueta.color
+        : c.color === "sombra" ? hslAHex(piel.h, piel.s, piel.l * 0.78) : null;
       const base = c.color === "jean" ? jean : hexAHsl(azar(CASUAL_COLORES.polo));
       c.tonos.forEach((t) => {
         const path = document.createElementNS(NS, "path");
