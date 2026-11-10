@@ -188,8 +188,7 @@ const EVENTO = {
   // cabello Super Saiyajin: mechones en punta hacia arriba
   const PELO_SSJ = "M896 140 L874 96 L912 112 L906 52 L944 94 L956 30 L978 88 L1006 34 L1012 96 L1050 62 L1036 118 "
     + "L1066 110 L1034 150 L1030 196 L1012 200 L1002 160 L986 140 L960 128 L930 130 Z";
-  const RAYOS = ["M1150 120 L1120 220 L1160 230 L1110 360", "M840 380 L880 470 L845 480 L890 600",
-    "M1170 650 L1130 730 L1165 740 L1120 850", "M860 160 L900 240 L870 250 L910 330"]; // x, y, ancho, alto en la escena (sobre la montera)
+ // x, y, ancho, alto en la escena (sobre la montera)
   function grupoFigura(fig) {
     const d = document.createElement("div");
     d.className = `figura figura-${fig}`;
@@ -275,20 +274,19 @@ const EVENTO = {
     const aura = capaSvg("capa-aura", figuras.varon.el);
     figuras.varon.el.prepend(aura);
     aura.innerHTML = `<defs><radialGradient id="grad-aura" cx="50%" cy="60%" r="55%">
-        <stop offset="0" stop-color="#fff7c2" stop-opacity=".95"/><stop offset=".45" stop-color="#ffd23f" stop-opacity=".8"/>
-        <stop offset="1" stop-color="#ff9f1c" stop-opacity="0"/></radialGradient></defs>
+        <stop offset="0" stop-color="#eaf6ff" stop-opacity=".95"/><stop offset=".45" stop-color="#4cc9f0" stop-opacity=".75"/>
+        <stop offset="1" stop-color="#3a0ca3" stop-opacity="0"/></radialGradient></defs>
       <path class="llama" fill="url(#grad-aura)" d="${AURA}"/>
       <path class="llama l2" fill="url(#grad-aura)" opacity=".7" transform="translate(1000 560) scale(1.12 1.05) translate(-1000 -560)" d="${AURA}"/>`;
     const dorado = capaSvg("capa-dorada", figuras.varon.el);
     dorado.style.clipPath = cuerpos.varon.style.clipPath;
     dorado.innerHTML = [ESCENA.silueta.d, ESCENA.cabello.d,
       ...(ESCENA.casual || []).filter((c) => c.figura === "varon").flatMap((c) => c.tonos.map((t) => t.d))]
-      .map((d) => `<path d="${d}" fill="#ffe680"/>`).join("");
+      .map((d) => `<path d="${d}" fill="#d6f1ff"/>`).join("");
     const pelo = capaSvg("capa-pelo-ssj", figuras.varon.el);
     pelo.innerHTML = `<path d="${PELO_SSJ}" fill="#ffd23f" stroke="#e8a317" stroke-width="3" stroke-linejoin="round"/>`;
     const rayos = capaSvg("capa-rayos", figuras.varon.el);
-    rayos.innerHTML = RAYOS.map((d) => `<path class="rayo" d="${d}" fill="none" stroke="#fffbe0" stroke-width="5"
-      stroke-linejoin="round" stroke-linecap="round"/>`).join("");
+    rayos.innerHTML = "";
     Object.assign(figuras.varon, { aura, dorado, pelo, rayos });
     // rosas rojas de la montera (llegan volando al final)
     const rosas = capaSvg("capa-rosas", figuras.mujer.el);
@@ -607,6 +605,52 @@ const EVENTO = {
       .to(pompon.capa, { scale: 1.15, duration: 0.15, yoyo: true, repeat: 1 });
   }
 
+  /* Rayos realistas: desplazamiento del punto medio (trazo quebrado e
+   * irregular) con ramas; cada destello dibuja rayos nuevos. */
+  function trazoRayo(x1, y1, x2, y2, desv, prof, ramas) {
+    if (prof === 0) return [[x1, y1], [x2, y2]];
+    const mx = (x1 + x2) / 2 + (Math.random() - 0.5) * desv;
+    const my = (y1 + y2) / 2 + (Math.random() - 0.5) * desv;
+    if (ramas && prof > 2 && Math.random() < 0.35) {
+      const ang = Math.atan2(y2 - y1, x2 - x1) + (Math.random() - 0.5) * 1.6;
+      const largo = Math.hypot(x2 - x1, y2 - y1) * (0.3 + Math.random() * 0.4);
+      ramas.push(trazoRayo(mx, my, mx + Math.cos(ang) * largo, my + Math.sin(ang) * largo, desv / 2, prof - 2, null));
+    }
+    const a = trazoRayo(x1, y1, mx, my, desv / 2, prof - 1, ramas);
+    return a.concat(trazoRayo(mx, my, x2, y2, desv / 2, prof - 1, ramas).slice(1));
+  }
+  const aD = (pts) => "M" + pts.map((p) => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" L");
+  function destelloElectrico(capa) {
+    let html = "";
+    const n = 2 + Math.floor(Math.random() * 3);
+    for (let k = 0; k < n; k++) {
+      // recorren el contorno de su cuerpo: de un punto a otro cercano
+      const x1 = 860 + Math.random() * 330, y1 = 60 + Math.random() * 960;
+      const ang = Math.random() * Math.PI * 2, largo = 90 + Math.random() * 190;
+      const ramas = [];
+      const tronco = trazoRayo(x1, y1, x1 + Math.cos(ang) * largo, y1 + Math.sin(ang) * largo, largo * 0.45, 6, ramas);
+      const todos = [tronco, ...ramas];
+      html += todos.map((p, i) => {
+        const d = aD(p), g = i ? 0.55 : 1;
+        return `<path d="${d}" fill="none" stroke="#1d4fbf" stroke-opacity="${0.55 * g}" stroke-width="${26 * g}" stroke-linejoin="round" stroke-linecap="round"/>`
+          + `<path d="${d}" fill="none" stroke="#4cc9f0" stroke-opacity="${0.9 * g}" stroke-width="${11 * g}" stroke-linejoin="round" stroke-linecap="round"/>`
+          + `<path d="${d}" fill="none" stroke="#ffffff" stroke-width="${4.5 * g}" stroke-linejoin="round" stroke-linecap="round"/>`;
+      }).join("");
+    }
+    capa.innerHTML = html;
+  }
+  function tormenta(capa, segundos) {
+    capa.style.opacity = 1;
+    const fin = performance.now() + segundos * 1000;
+    const tic = () => {
+      if (performance.now() > fin) { capa.innerHTML = ""; return; }
+      // a veces queda oscuro un instante: parpadeo natural
+      if (Math.random() < 0.25) capa.innerHTML = ""; else destelloElectrico(capa);
+      setTimeout(tic, 45 + Math.random() * 70);
+    };
+    tic();
+  }
+
   // él: transformación Super Saiyajin
   function correrEl(tl) {
     const el = figuras.varon;
@@ -624,9 +668,8 @@ const EVENTO = {
       .fromTo(".capa-aura .llama", { scaleY: 0.92, transformOrigin: "50% 100%" },
         { scaleY: 1.06, duration: 0.12, repeat: 18, yoyo: true, ease: "sine.inOut" }, "el+=0.6")
       .fromTo(el.dorado, { opacity: 0 }, { opacity: 0.92, duration: 0.3 }, "el+=0.8")
-      .fromTo(el.pelo, { opacity: 0, scaleY: 0.3, transformOrigin: `${pct([960, 150])[0]}% ${pct([960, 150])[1]}%` },
-        { opacity: 1, scaleY: 1, duration: 0.35, ease: "back.out(3)" }, "el+=1.0")
-      .fromTo(".rayo", { opacity: 0 }, { opacity: 1, duration: 0.05, repeat: 7, yoyo: true, stagger: 0.12 }, "el+=0.9")
+      // electricidad azul que recorre su cuerpo (aura eléctrica)
+      .add(() => tormenta(el.rayos, 2.2), "el+=0.6")
       .add(() => chispas([1000, 1000], 30), "el+=1.0")
       .to(el.el, { y: 0, duration: 0.3, ease: "back.out(3)" }, "el+=1.4")
       // explosión de energía: se va lo casual y aparece el traje, prenda por prenda
@@ -639,8 +682,7 @@ const EVENTO = {
         .add(() => chispas(centro(st), 8), "<");
     });
     // el chullo cubre el cabello dorado; el aura se apaga
-    tl.to(el.pelo, { opacity: 0, duration: 0.3 }, `el+=${1.9 + suyas.length * 0.16}`)
-      .to(el.aura, { opacity: 0, scale: 1.3, duration: 0.6 }, "<")
+    tl.to(el.aura, { opacity: 0, scale: 1.3, duration: 0.6 }, `el+=${1.9 + suyas.length * 0.16}`)
       .add(() => chispas(CENTRO_EL, 36), "<")
       .to(".pareja", { scale: 1, x: 0, duration: 0.8, ease: "power2.inOut" }, "+=0.2")
       .to(".transfo", { opacity: 0, duration: 0.8 }, "<");

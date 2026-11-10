@@ -435,7 +435,7 @@ body.listo .sobre-cuerpo { animation: entra .7s cubic-bezier(.2, 1.4, .4, 1) bot
 /* Super Saiyajin */
 .capa-aura, .capa-dorada, .capa-pelo-ssj, .capa-rayos { opacity: 0; pointer-events: none; }
 .capa-aura { filter: blur(3px); }
-.capa-dorada { filter: drop-shadow(0 0 8px #ffd23f) drop-shadow(0 0 16px #ff9f1c); }
+.capa-dorada { filter: drop-shadow(0 0 8px #4cc9f0) drop-shadow(0 0 18px #3a86ff); }
 .capa-pelo-ssj { filter: drop-shadow(0 0 10px #ffd23f); }
-.capa-rayos { opacity: 1; filter: drop-shadow(0 0 6px #ffe680); }
+.capa-rayos { opacity: 1; filter: drop-shadow(0 0 4px #4cc9f0); }
 .rayo { opacity: 0; }
