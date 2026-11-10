@@ -403,3 +403,17 @@ body.listo .sobre-cuerpo { animation: entra .7s cubic-bezier(.2, 1.4, .4, 1) bot
 .sello { width: 116px; height: 116px; }
 .sello-logo { width: 104px; height: 104px; }
 .carga-logo img { width: 78px; height: 78px; }
+
+/* ---------- cambio de vestuario ---------- */
+.figura { position: absolute; inset: 0; will-change: transform; }
+.anillos { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 3; }
+.anillo { fill: none; stroke: url(#grad-anillo); stroke-width: 9; opacity: 0;
+  filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 12px #ffd23f); }
+/* silueta luminosa durante la transformación */
+.figura.brilla { filter: brightness(0) invert(1) drop-shadow(0 0 6px #ffd23f) drop-shadow(0 0 16px #f72585); }
+.transfo { position: absolute; inset: 0; opacity: 0; pointer-events: none; z-index: 1;
+  background: radial-gradient(circle at 40% 55%, rgba(255, 210, 63, .25), rgba(60, 10, 90, .72) 60%); }
+.destello { position: absolute; inset: 0; opacity: 0; pointer-events: none; z-index: 1; background: #fff; }
+.pareja { z-index: 2; }
+.cambio { font-size: 20px; color: #fff; background: linear-gradient(120deg, var(--fucsia), var(--morado));
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .25); }

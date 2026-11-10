@@ -158,13 +158,28 @@ const EVENTO = {
    * entera (el navegador la desplaza ya dibujada) y no se redibujan miles de
    * trazados en cada cuadro, que es lo que congelaba la página. */
   const VISTA = [110, 0, 1230, 1090]; // recorte de la escena: x, y, ancho, alto
-  function capaSvg(clase) {
+  function capaSvg(clase, cont = $("#lienzo")) {
     const s = document.createElementNS(NS, "svg");
     s.setAttribute("viewBox", VISTA.join(" "));
     s.setAttribute("class", `capa ${clase}`);
     s.setAttribute("aria-hidden", "true");
-    $("#lienzo").appendChild(s);
+    cont.appendChild(s);
     return s;
+  }
+  // punto de la escena -> % de la capa
+  const pct = ([x, y]) => [((x - VISTA[0]) / VISTA[2]) * 100, ((y - VISTA[1]) / VISTA[3]) * 100];
+
+  /* Cada danzante es un grupo propio (para animarlos por separado). El cuerpo
+   * de ambos viene en una sola forma: se recorta por esta línea, que pasa entre
+   * los dos sin cortar los brazos que se juntan en el pompón. */
+  const CORTE_ELLA = [[0, 0], [632, 0], [632, 140], [700, 280], [870, 560], [870, 1090], [0, 1090]];
+  const figuras = {};
+  function grupoFigura(fig) {
+    const d = document.createElement("div");
+    d.className = `figura figura-${fig}`;
+    $("#lienzo").appendChild(d);
+    figuras[fig] = { el: d, casual: [], prendas: [] };
+    return figuras[fig];
   }
   // centro de la prenda en % de la capa (origen de giros y escalas)
   const origen = ([x, y]) => `${((x - VISTA[0]) / VISTA[2]) * 100}% ${((y - VISTA[1]) / VISTA[3]) * 100}%`;
@@ -180,14 +195,15 @@ const EVENTO = {
   const azar = (lista) => lista[Math.floor(Math.random() * lista.length)];
 
   // las capas casuales van debajo del cuerpo (manos y cara quedan encima)
-  function construirCasual(cuerpo) {
-    let ultimaEncima = cuerpo;
+  function construirCasual(cuerpos) {
+    const ultimaEncima = { ...cuerpos };
     const jean = hexAHsl(azar(CASUAL_COLORES.jean));
     (ESCENA.casual || []).forEach((c) => {
-      const capa = capaSvg("capa-casual");
+      const cuerpo = cuerpos[c.figura];
+      const capa = capaSvg("capa-casual", figuras[c.figura].el);
       // cabello y orejas van encima del rostro; la ropa, debajo del cuerpo
-      if (c.encima) { ultimaEncima.after(capa); ultimaEncima = capa; }
-      else $("#lienzo").insertBefore(capa, cuerpo);
+      if (c.encima) { ultimaEncima[c.figura].after(capa); ultimaEncima[c.figura] = capa; }
+      else figuras[c.figura].el.insertBefore(capa, cuerpo);
       const piel = hexAHsl(ESCENA.silueta.color);
       const exacto = c.color === "cabello" ? ESCENA.cabello.color
         : c.color === "piel" ? ESCENA.silueta.color
@@ -201,22 +217,33 @@ const EVENTO = {
         capa.appendChild(path);
       });
       casual.push({ capa, reemplaza: c.reemplaza });
+      figuras[c.figura].casual.push(capa);
     });
   }
 
   function construirPareja() {
     if (!ESCENA) return;
-    const cuerpo = capaSvg("capa-cuerpo");
-    cuerpo.insertAdjacentHTML("beforeend",
+    // sombra en el piso (común a los dos)
+    capaSvg("capa-sombra").innerHTML =
       '<defs><radialGradient id="grad-sombra"><stop offset="0" stop-color="#2b1208" stop-opacity=".45"/>'
       + '<stop offset="1" stop-color="#2b1208" stop-opacity="0"/></radialGradient></defs>'
-      + '<ellipse cx="760" cy="1066" rx="600" ry="34" fill="url(#grad-sombra)"/>');
-    const g = document.createElementNS(NS, "g");
-    cuerpo.appendChild(g);
-    Silueta.dibujar(g, ESCENA);
-    construirCasual(cuerpo);
+      + '<ellipse cx="760" cy="1066" rx="600" ry="34" fill="url(#grad-sombra)"/>';
+    const cuerpos = {};
+    const recorte = CORTE_ELLA.map((p) => pct(p).map((v) => `${v}%`).join(" ")).join(", ");
+    ["mujer", "varon"].forEach((fig) => {
+      const grupo = grupoFigura(fig);
+      const cuerpo = capaSvg("capa-cuerpo", grupo.el);
+      const g = document.createElementNS(NS, "g");
+      cuerpo.appendChild(g);
+      Silueta.dibujar(g, ESCENA);
+      // ella: dentro del polígono; él: el resto (polígono invertido con evenodd)
+      cuerpo.style.clipPath = fig === "mujer" ? `polygon(${recorte})`
+        : `polygon(evenodd, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, ${recorte})`;
+      cuerpos[fig] = cuerpo;
+    });
+    construirCasual(cuerpos);
     ESCENA.prendas.forEach((p) => {
-      const capa = capaSvg("capa-prenda");
+      const capa = capaSvg("capa-prenda", figuras[p.figura].el);
       const paths = {};
       p.tonos.forEach((t) => {
         const path = document.createElementNS(NS, "path");
@@ -227,7 +254,9 @@ const EVENTO = {
       const [x1, y1, x2, y2] = p.caja;
       // sandalias y borla se ven desde el inicio (cubren pies y mano)
       const fija = /sandalias|borla/.test(p.id);
-      prendas.push({ pieza: p, paths, capa, fija, origen: origen([(x1 + x2) / 2, (y1 + y2) / 2]) });
+      const st = { pieza: p, paths, capa, fija, origen: origen([(x1 + x2) / 2, (y1 + y2) / 2]) };
+      prendas.push(st);
+      figuras[p.figura].prendas.push(st);
     });
   }
 
@@ -427,6 +456,77 @@ const EVENTO = {
       .add(() => { mostrar(); entradaInvitacion(); }, "-=0.4");
   }
 
+  /* ---------- cambio de vestuario ---------- */
+  const CENTRO_ELLA = [490, 560];
+  const enPantalla = ([x, y]) => {            // punto de la escena -> píxeles de la pantalla
+    const r = $("#lienzo").getBoundingClientRect(), [px, py] = pct([x, y]);
+    return [r.left + r.width * px / 100, r.top + r.height * py / 100];
+  };
+  const chispas = (punto, n = 14) => {
+    if (!window.Carnaval) return;
+    const [x, y] = enPantalla(punto);
+    Carnaval.picado(x, y, n, ["#ffffff", "#ffd23f", "#f72585", "#3a86ff", "#8ac926"]);
+  };
+  const casualDe = (id) => casual.filter((c) => c.reemplaza === id).map((c) => c.capa);
+  const centro = (st) => [(st.pieza.caja[0] + st.pieza.caja[2]) / 2, (st.pieza.caja[1] + st.pieza.caja[3]) / 2];
+
+  // ella: transformación estilo Sailor Moon
+  function transformarElla(tl) {
+    const ella = figuras.mujer;
+    const suyas = ella.prendas.filter((p) => !p.fija).sort((a, b) => b.pieza.caja[3] - a.pieza.caja[3]);
+    const [ox, oy] = pct(CENTRO_ELLA);
+    if (suave) {  // con "reducir movimiento": fundido sencillo
+      tl.to(ella.casual, { opacity: 0, duration: 0.6 }).to(suyas.map((p) => p.capa), { opacity: 1, duration: 0.6 }, "<");
+      return;
+    }
+    tl.addLabel("ella")
+      .to(".pareja", { scale: 1.55, transformOrigin: `${ox}% ${oy}%`, duration: 0.8, ease: "power2.inOut" }, "ella")
+      .to(".transfo", { opacity: 1, duration: 0.8 }, "ella")
+      // silueta luminosa que gira
+      .add(() => ella.el.classList.add("brilla"), "ella+=0.55")
+      .to(ella.el, { scaleX: -1, transformOrigin: `${ox}% ${oy}%`, duration: 0.22, ease: "sine.inOut",
+        yoyo: true, repeat: 3 }, "ella+=0.6")
+      // destello: se apaga la luz y aparece vestida, prenda por prenda, de los pies a la cabeza
+      .add(() => ella.el.classList.remove("brilla"), "ella+=1.5")
+      .fromTo(".destello", { opacity: 0.95 }, { opacity: 0, duration: 0.6, immediateRender: false }, "ella+=1.5")
+      .fromTo(".anillo", { y: 0, opacity: 0 }, { y: -900, opacity: 1, duration: 1.4, ease: "power1.inOut",
+        stagger: 0.18, immediateRender: false }, "ella+=1.5")
+      .to(".anillo", { opacity: 0, duration: 0.3, stagger: 0.18 }, "ella+=2.6");
+    suyas.forEach((st, i) => {
+      // la prenda casual que esta cubre se va justo cuando aparece (nunca queda el cuerpo vacío)
+      const cubre = casualDe(st.pieza.id);
+      tl.fromTo(st.capa, { opacity: 0, scale: 1.3, transformOrigin: st.origen },
+        { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)", immediateRender: false }, `ella+=${1.55 + i * 0.2}`)
+        .add(() => chispas(centro(st), 10), "<");
+      if (cubre.length) tl.set(cubre, { display: "none" }, "<+0.2");
+    });
+    tl.add(() => chispas(CENTRO_ELLA, 36), ">-0.1")
+      .to(".pareja", { scale: 1, duration: 0.8, ease: "power2.inOut" }, "+=0.35")
+      .to(".transfo", { opacity: 0, duration: 0.8 }, "<");
+  }
+
+  // él: sale corriendo por la derecha y vuelve de un salto, ya vestido
+  function correrEl(tl) {
+    const el = figuras.varon;
+    const suyas = el.prendas.filter((p) => !p.fija).map((p) => p.capa);
+    if (suave) {
+      tl.to(el.casual, { opacity: 0, duration: 0.6 }).to(suyas, { opacity: 1, duration: 0.6 }, "<");
+      return;
+    }
+    tl.addLabel("el", "+=0.2")
+      .to(el.el, { rotation: 6, transformOrigin: "75% 95%", duration: 0.15 }, "el")
+      .to(el.el, { xPercent: 75, duration: 0.5, ease: "power2.in" }, "el+=0.1")
+      .add(() => chispas([1150, 600], 12), "el+=0.25")
+      .set(el.casual, { display: "none" }, "el+=0.65")
+      .set(suyas, { opacity: 1 }, "el+=0.65")
+      .set(el.el, { rotation: -8 }, "el+=0.65")
+      // regreso con salto
+      .to(el.el, { xPercent: 0, duration: 0.6, ease: "power2.out" }, "el+=0.9")
+      .to(el.el, { y: -60, duration: 0.3, ease: "power2.out" }, "el+=0.9")
+      .to(el.el, { y: 0, rotation: 0, duration: 0.35, ease: "bounce.out" }, "el+=1.2")
+      .add(() => chispas([1000, 1000], 30), "el+=1.45");
+  }
+
   function entradaInvitacion() {
     iniciarCarnaval();
     const tl = G.timeline();
@@ -446,21 +546,16 @@ const EVENTO = {
       .from(".lema", { opacity: 0, y: 10, duration: 0.4 }, "-=0.2")
       .from(".inst", { scale: 0, opacity: 0, rotation: () => G.utils.random(-30, 30), duration: 0.7,
         ease: "back.out(1.8)", stagger: 0.08 }, "-=0.6")
-      // 3) los danzantes llegan con ropa casual
-      .from([...$$(".capa-cuerpo, .capa-casual"), ...prendas.filter((p) => p.fija).map((p) => p.capa)],
+      // 3) los danzantes llegan con ropa casual (el traje queda escondido)
+      .set(prendas.filter((p) => !p.fija).map((p) => p.capa), { opacity: 0 }, 0)
+      .from([...$$(".capa-sombra, .capa-cuerpo, .capa-casual"), ...prendas.filter((p) => p.fija).map((p) => p.capa)],
         { opacity: 0, y: 40, duration: 0.7, ease: "power2.out" }, "-=0.2")
-      // 4) cambio de vestuario: el traje cae pieza por pieza sobre la ropa casual
+      // 4) ¡Modo luriguayo!
       .fromTo("#cambio", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2.5)" }, "+=0.6")
-      .add(() => window.Carnaval && Carnaval.lluvia(14), "-=0.2")
-      .to("#cambio", { opacity: 0, y: -14, duration: 0.35 }, "+=0.7");
-    const sueltas = prendas.filter((p) => !p.fija);
-    sueltas.sort((a, b) => b.pieza.caja[3] - a.pieza.caja[3]).forEach((st, i) => {
-      tl.from(st.capa, suave ? { opacity: 0, duration: 0.5 }
-        : { y: -90, opacity: 0, scale: 0.85, transformOrigin: st.origen, duration: 0.55, ease: "back.out(1.6)" },
-        i === 0 ? "-=0.3" : "-=0.42");
-      const reemplazadas = casual.filter((c) => c.reemplaza === st.pieza.id).map((c) => c.capa);
-      if (reemplazadas.length) tl.to(reemplazadas, { opacity: 0, duration: 0.3 }, "-=0.25");
-    });
+      .add(() => window.Carnaval && Carnaval.lluvia(10), "-=0.2")
+      .to("#cambio", { opacity: 0, y: -14, duration: 0.35 }, "+=0.6");
+    transformarElla(tl);
+    correrEl(tl);
     // ya tapada por el traje, la ropa casual se retira (menos que dibujar)
     tl.set(".capa-casual", { display: "none" });
     tl.add(() => { colorear(semillaInicial); alternarColores(); }, "-=0.2")
