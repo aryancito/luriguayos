@@ -199,6 +199,7 @@ const EVENTO = {
   function construirCasual(cuerpos) {
     const ultimaEncima = { ...cuerpos };
     const jean = hexAHsl(azar(CASUAL_COLORES.jean));
+    const colorPolo = {};
     (ESCENA.casual || []).forEach((c) => {
       const cuerpo = cuerpos[c.figura];
       const capa = capaSvg("capa-casual", figuras[c.figura].el);
@@ -210,7 +211,9 @@ const EVENTO = {
         : c.color === "piel" ? ESCENA.silueta.color
         : c.color === "sombra" ? hslAHex(piel.h, piel.s, piel.l * 0.78)
         : c.color === "oro" ? "#f2b705" : null;
-      const base = c.color === "jean" ? jean : hexAHsl(azar(CASUAL_COLORES.polo));
+      // la blusa/polo y su faldón comparten color (uno por danzante)
+      colorPolo[c.figura] ||= hexAHsl(azar(CASUAL_COLORES.polo));
+      const base = c.color === "jean" ? jean : colorPolo[c.figura];
       c.tonos.forEach((t) => {
         const path = document.createElementNS(NS, "path");
         path.setAttribute("d", t.d);
