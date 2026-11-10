@@ -218,14 +218,13 @@ body.cerrado .invitacion { visibility: hidden; }
 }
 
 /* botones flotantes: música y espuma */
-.btn-musica, .btn-espuma {
+.btn-musica {
   position: fixed; right: 16px; z-index: 15;
   width: 50px; height: 50px; border-radius: 50%; border: 0; cursor: pointer;
   display: grid; place-items: center; -webkit-tap-highlight-color: transparent;
 }
 .btn-musica { bottom: calc(16px + env(safe-area-inset-bottom)); background: var(--fucsia); box-shadow: 0 8px 20px rgba(229, 25, 126, .35); }
-.btn-espuma { bottom: calc(76px + env(safe-area-inset-bottom)); background: var(--turquesa); box-shadow: 0 8px 20px rgba(15, 163, 163, .35); }
-.btn-musica[hidden], .btn-espuma[hidden] { display: none; }
+.btn-musica[hidden] { display: none; }
 .ondas { display: flex; align-items: flex-end; gap: 3px; height: 20px; }
 .ondas i { width: 4px; height: 100%; border-radius: 2px; background: #fff; transform-origin: bottom;
   animation: onda .9s ease-in-out infinite; }
@@ -235,7 +234,7 @@ body.cerrado .invitacion { visibility: hidden; }
 @keyframes onda { 0%, 100% { transform: scaleY(.3); } 50% { transform: scaleY(1); } }
 .btn-musica.mudo { background: #9aa0aa; }
 .btn-musica.mudo .ondas i { animation: none; transform: scaleY(.2); }
-.btn-musica.mudo::after { content: ""; position: absolute; width: 30px; height: 3px; background: #fff; border-radius: 2px; transform: rotate(-45deg); }
+
 
 /* ---------- carnaval ---------- */
 .carnaval { position: fixed; inset: 0; pointer-events: none; z-index: 12; overflow: hidden; }
@@ -384,3 +383,23 @@ body.listo .sobre-cuerpo { animation: entra .7s cubic-bezier(.2, 1.4, .4, 1) bot
 .n5 { top: 14%; width: 46%; opacity: .95; animation-duration: 40s; animation-delay: -22s; }
 @keyframes pasar { from { transform: translateX(-120%); } to { transform: translateX(260%); } }
 @media (prefers-reduced-motion: reduce) { .nube { animation-duration: 240s; } }
+
+/* botón de música: ⏸ mientras suena (con ondas alrededor), ▶ en pausa */
+.btn-musica { width: 54px; height: 54px; }
+.btn-musica .ico-play { display: none; }
+.btn-musica.mudo .ico-pausa { display: none; }
+.btn-musica.mudo .ico-play { display: block; margin-left: 3px; }
+.btn-musica .ondas { position: absolute; inset: -6px; height: auto; pointer-events: none; }
+.btn-musica .ondas i { position: absolute; inset: 0; width: auto; height: auto; border-radius: 50%; background: none;
+  border: 2px solid var(--fucsia); opacity: 0; animation: anillo 2.4s ease-out infinite; transform: none; }
+.btn-musica .ondas i:nth-child(2) { animation-delay: .8s; }
+.btn-musica .ondas i:nth-child(3) { animation-delay: 1.6s; }
+@keyframes anillo { 0% { transform: scale(.85); opacity: .7; } 100% { transform: scale(1.5); opacity: 0; } }
+.btn-musica.mudo .ondas { display: none; }
+
+/* insignia ALRF (circular) */
+.cab-logo { width: 68px; height: 68px; filter: drop-shadow(0 4px 8px rgba(122, 15, 36, .25)); }
+.pie-logo { width: 200px; filter: drop-shadow(0 10px 18px rgba(122, 15, 36, .25)); }
+.sello { width: 116px; height: 116px; }
+.sello-logo { width: 104px; height: 104px; }
+.carga-logo img { width: 78px; height: 78px; }

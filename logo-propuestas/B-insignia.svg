@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 420"><style>@import url("https://fonts.googleapis.com/css2?family=Lilita+One&amp;family=Baloo+2:wght@700;800&amp;display=swap");.l{font-family:"Lilita One",sans-serif}.b{font-family:"Baloo 2",sans-serif;font-weight:800}</style><defs><pattern id="ag" width="56" height="12" patternUnits="userSpaceOnUse"><rect width="10" height="12" fill="#e63946"/><rect x="10" width="4" height="12" fill="#ffbe0b"/><rect x="14" width="10" height="12" fill="#f72585"/><rect x="24" width="4" height="12" fill="#8ac926"/><rect x="28" width="10" height="12" fill="#3a86ff"/><rect x="38" width="4" height="12" fill="#ffbe0b"/><rect x="42" width="10" height="12" fill="#8338ec"/><rect x="52" width="4" height="12" fill="#fb5607"/></pattern>
+<path id="arr" d="M60 210 A150 150 0 0 1 360 210"/><path id="aba" d="M48 210 A162 162 0 0 0 372 210"/></defs>
+<circle cx="210" cy="210" r="200" fill="#7a0f24"/>
+<circle cx="210" cy="210" r="186" fill="none" stroke="url(#ag)" stroke-width="12"/>
+<circle cx="210" cy="210" r="128" fill="#fff"/>
+<text class="b" font-size="24" letter-spacing="3" fill="#fff"><textPath href="#arr" startOffset="50%" text-anchor="middle">ASOCIACIÓN DE LURIGUAYOS</textPath></text>
+<text class="b" font-size="22" letter-spacing="3" fill="#ffbe0b"><textPath href="#aba" startOffset="50%" text-anchor="middle">REVELACIÓN · FANÁTICOS · JULI</textPath></text>
+<circle cx="62" cy="210" r="7" fill="#ffbe0b"/><circle cx="358" cy="210" r="7" fill="#ffbe0b"/>
+<path d="M140 296 V196 A70 70 0 0 1 280 196 V296" fill="none" stroke="#7a0f24" stroke-width="22"/>
+<rect x="120" y="292" width="180" height="12" rx="3" fill="url(#ag)"/>
+<path d="M210 110 V142" stroke="#7a0f24" stroke-width="4"/><g transform="translate(210 150) scale(1.0)"><circle cx="-9" cy="-6" r="10" fill="#f72585"/><circle cx="9" cy="-6" r="10" fill="#8ac926"/><circle cx="0" cy="8" r="11" fill="#ffbe0b"/><circle cx="-13" cy="9" r="8" fill="#3a86ff"/><circle cx="13" cy="9" r="8" fill="#fb5607"/><circle cx="-4" cy="2" r="3" fill="#fff" opacity=".6"/></g>
+<text class="l" x="174" y="268" font-size="54" text-anchor="middle" fill="#8338ec">A</text><text class="l" x="198" y="268" font-size="54" text-anchor="middle" fill="#f72585">L</text><text class="l" x="222" y="268" font-size="54" text-anchor="middle" fill="#ffbe0b">R</text><text class="l" x="246" y="268" font-size="54" text-anchor="middle" fill="#3a86ff">F</text>
+</svg>

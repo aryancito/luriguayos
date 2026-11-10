@@ -323,11 +323,11 @@ const EVENTO = {
     if (musica.paused) {
       musica.play();
       btnMusica.classList.remove("mudo");
-      btnMusica.setAttribute("aria-label", "Silenciar música");
+      btnMusica.setAttribute("aria-label", "Pausar música");
       fundirA(VOLUMEN_FINAL, 2);
     } else {
       btnMusica.classList.add("mudo");
-      btnMusica.setAttribute("aria-label", "Activar música");
+      btnMusica.setAttribute("aria-label", "Reproducir música");
       fundirA(0, 0.6, () => musica.pause());
     }
   });
@@ -356,14 +356,18 @@ const EVENTO = {
     carnavalListo = true;
     Carnaval.guirnalda($(".hero"));
     Carnaval.globos(6);
-    const btn = $("#btn-espuma");
-    btn.hidden = false;
-    if (G && !sinAnimacion) G.from(btn, { scale: 0, duration: 0.5, ease: "back.out(2.5)", delay: 1.2 });
-    btn.addEventListener("click", () => {
-      const r = btn.getBoundingClientRect();
-      Carnaval.espuma(r.left + r.width / 2, r.top, -1);
-      if (G) G.fromTo(btn, { rotation: -20 }, { rotation: 0, duration: 0.5, ease: "elastic.out(1, 0.4)" });
-    });
+    // espuma de carnaval que sale sola, de cuando en vez, en cualquier parte
+    if (!sinAnimacion) {
+      const rociar = () => {
+        if (!document.hidden) {
+          const x = innerWidth * (0.1 + Math.random() * 0.8);
+          const y = innerHeight * (0.45 + Math.random() * 0.5);
+          Carnaval.espuma(x, y, Math.random() < 0.5 ? -1 : 1);
+        }
+        setTimeout(rociar, 7000 + Math.random() * 7000);
+      };
+      setTimeout(rociar, 5000);
+    }
   }
 
   /* ---------- pompones de fondo ---------- */
