@@ -410,10 +410,15 @@ body.listo .sobre-cuerpo { animation: entra .7s cubic-bezier(.2, 1.4, .4, 1) bot
 .anillo { fill: none; stroke: url(#grad-anillo); stroke-width: 9; opacity: 0;
   filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 12px #ffd23f); }
 /* silueta luminosa durante la transformación */
-.figura.brilla { filter: brightness(0) invert(1) drop-shadow(0 0 6px #ffd23f) drop-shadow(0 0 16px #f72585); }
+.capa-luz { opacity: 0; filter: drop-shadow(0 0 6px #ffd23f) drop-shadow(0 0 14px #f72585); }
 .transfo { position: absolute; inset: 0; opacity: 0; pointer-events: none; z-index: 1;
   background: radial-gradient(circle at 40% 55%, rgba(255, 210, 63, .25), rgba(60, 10, 90, .72) 60%); }
 .destello { position: absolute; inset: 0; opacity: 0; pointer-events: none; z-index: 1; background: #fff; }
 .pareja { z-index: 2; }
 .cambio { font-size: 20px; color: #fff; background: linear-gradient(120deg, var(--fucsia), var(--morado));
   text-shadow: 0 1px 2px rgba(0, 0, 0, .25); }
+
+.capa-rosas { opacity: 0; }
+.rosas-vuelan { position: fixed; left: 0; top: 0; z-index: 30; pointer-events: none; opacity: 0;
+  will-change: transform; filter: drop-shadow(0 6px 8px rgba(120, 0, 20, .35)); }
+.espuma { box-shadow: none; }

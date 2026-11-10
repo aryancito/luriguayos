@@ -174,6 +174,7 @@ const EVENTO = {
    * los dos sin cortar los brazos que se juntan en el pompón. */
   const CORTE_ELLA = [[0, 0], [568, 0], [568, 66], [592, 96], [625, 108], [650, 160], [700, 280], [870, 560], [870, 1090], [0, 1090]];
   const figuras = {};
+  const ROSAS = [352, 86, 112, 86]; // x, y, ancho, alto en la escena (sobre la montera)
   function grupoFigura(fig) {
     const d = document.createElement("div");
     d.className = `figura figura-${fig}`;
@@ -242,6 +243,17 @@ const EVENTO = {
       cuerpos[fig] = cuerpo;
     });
     construirCasual(cuerpos);
+    // silueta luminosa de ella para la transformación: blanca y estática
+    const luz = capaSvg("capa-luz", figuras.mujer.el);
+    luz.style.clipPath = cuerpos.mujer.style.clipPath;
+    luz.innerHTML = [ESCENA.silueta.d, ESCENA.cabello.d,
+      ...(ESCENA.casual || []).filter((c) => c.figura === "mujer").flatMap((c) => c.tonos.map((t) => t.d))]
+      .map((d) => `<path d="${d}" fill="#fff"/>`).join("");
+    figuras.mujer.luz = luz;
+    // rosas rojas de la montera (llegan volando al final)
+    const rosas = capaSvg("capa-rosas", figuras.mujer.el);
+    rosas.innerHTML = `<image href="img/rosas.svg" x="${ROSAS[0]}" y="${ROSAS[1]}" width="${ROSAS[2]}" height="${ROSAS[3]}"/>`;
+    figuras.mujer.rosas = rosas;
     ESCENA.prendas.forEach((p) => {
       const capa = capaSvg("capa-prenda", figuras[p.figura].el);
       const paths = {};
@@ -445,7 +457,7 @@ const EVENTO = {
     iniciarMusica();
     const sobre = $("#sobre");
     const mostrar = () => { document.body.classList.remove("cerrado"); $("#invitacion").setAttribute("aria-hidden", "false"); };
-    if (!G || sinAnimacion) { window.__arcoEntrada(); mostrar(); iniciarCarnaval(); sobre.remove(); $$(".capa-casual").forEach((c) => (c.style.display = "none")); colorear(semillaInicial, false); revelarTodo(); return; }
+    if (!G || sinAnimacion) { window.__arcoEntrada(); mostrar(); $$(".capa-rosas").forEach((r) => (r.style.opacity = 1)); iniciarCarnaval(); sobre.remove(); $$(".capa-casual").forEach((c) => (c.style.display = "none")); colorear(semillaInicial, false); revelarTodo(); return; }
     G.timeline()
       .to(".sello", { scale: 1.25, duration: 0.15, ease: "power1.out" })
       .to(".sello", { scale: 0, rotation: 200, opacity: 0, duration: 0.35, ease: "back.in(2)" })
@@ -484,11 +496,11 @@ const EVENTO = {
       .to(".pareja", { scale: 1.55, transformOrigin: `${ox}% ${oy}%`, duration: 0.8, ease: "power2.inOut" }, "ella")
       .to(".transfo", { opacity: 1, duration: 0.8 }, "ella")
       // silueta luminosa que gira
-      .add(() => ella.el.classList.add("brilla"), "ella+=0.55")
+      .to(ella.luz, { opacity: 1, duration: 0.35 }, "ella+=0.5")
       .to(ella.el, { scaleX: -1, transformOrigin: `${ox}% ${oy}%`, duration: 0.22, ease: "sine.inOut",
         yoyo: true, repeat: 3 }, "ella+=0.6")
       // destello: se apaga la luz y aparece vestida, prenda por prenda, de los pies a la cabeza
-      .add(() => ella.el.classList.remove("brilla"), "ella+=1.5")
+      .to(ella.luz, { opacity: 0, duration: 0.25 }, "ella+=1.5")
       .fromTo(".destello", { opacity: 0.95 }, { opacity: 0, duration: 0.6, immediateRender: false }, "ella+=1.5")
       .fromTo(".anillo", { y: 0, opacity: 0 }, { y: -900, opacity: 1, duration: 1.4, ease: "power1.inOut",
         stagger: 0.18, immediateRender: false }, "ella+=1.5")
@@ -504,6 +516,43 @@ const EVENTO = {
     tl.add(() => chispas(CENTRO_ELLA, 36), ">-0.1")
       .to(".pareja", { scale: 1, duration: 0.8, ease: "power2.inOut" }, "+=0.35")
       .to(".transfo", { opacity: 0, duration: 0.8 }, "<");
+  }
+
+  // rosas rojas: cruzan toda la pantalla en curva y se posan en la montera
+  function vuelanRosas(tl) {
+    const destino = figuras.mujer.rosas;
+    if (suave) { tl.to(destino, { opacity: 1, duration: 0.6 }); return; }
+    const vuela = document.createElement("img");
+    vuela.src = "img/rosas.svg";
+    vuela.className = "rosas-vuelan";
+    vuela.alt = "";
+    document.body.appendChild(vuela);
+    tl.add(() => {
+      const r = $("#lienzo").getBoundingClientRect();
+      const ancho = r.width * ROSAS[2] / VISTA[2];
+      const [fx, fy] = enPantalla([ROSAS[0], ROSAS[1]]);
+      const W = innerWidth, H = innerHeight;
+      G.set(vuela, { width: ancho, x: -ancho * 2, y: H * 0.85, rotation: -40, scale: 4.2, opacity: 1 });
+      // recorrido: entra abajo-izquierda, cruza a la derecha, sube, vuelve y baja a la montera
+      G.timeline({ onComplete: () => { vuela.remove(); } })
+        .to(vuela, { keyframes: [
+          { x: W * 0.75, y: H * 0.62, rotation: 120, scale: 3.8, duration: 0.8, ease: "sine.inOut" },
+          { x: W * 0.62, y: H * 0.12, rotation: 260, scale: 3.2, duration: 0.7, ease: "sine.inOut" },
+          { x: W * 0.06, y: H * 0.3, rotation: 400, scale: 2.4, duration: 0.7, ease: "sine.inOut" },
+          { x: fx, y: fy, rotation: 720, scale: 1, duration: 0.7, ease: "power2.out" },
+        ] })
+        .add(() => { chispas([ROSAS[0] + ROSAS[2] / 2, ROSAS[1] + ROSAS[3] / 2], 24); }, "-=0.05")
+        .set(destino, { opacity: 1 })
+        .set(vuela, { opacity: 0 })
+        .fromTo(destino, { scale: 1.25, transformOrigin: origen([ROSAS[0] + ROSAS[2] / 2, ROSAS[1] + ROSAS[3]]) },
+          { scale: 1, duration: 0.4, ease: "back.out(3)" });
+      // pétalos que se desprenden por el camino
+      for (let k = 0; k < 10; k++) G.delayedCall(0.25 * k, () => {
+        const b = vuela.getBoundingClientRect();
+        if (window.Carnaval && b.width) Carnaval.picado(b.left + b.width / 2, b.top + b.height / 2, 3, ["#e63946", "#c1121f", "#2d8a3e"]);
+      });
+    }, "+=0.2");
+    tl.to({}, { duration: 3.2 }); // da tiempo al vuelo antes de seguir
   }
 
   // remate: el pompón aparece entre sus manos con un estallido
@@ -569,6 +618,7 @@ const EVENTO = {
     transformarElla(tl);
     correrEl(tl);
     aparecePompon(tl);
+    vuelanRosas(tl);
     // ya tapada por el traje, la ropa casual se retira (menos que dibujar)
     tl.set(".capa-casual", { display: "none" });
     tl.add(() => { colorear(semillaInicial); alternarColores(); }, "-=0.2")

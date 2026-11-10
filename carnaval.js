@@ -141,16 +141,16 @@
   /* espuma de carnaval: burbujas blancas que salen en chorro y se desvanecen */
   function espuma(x, y, dir = -1) {
     if (!G) return;
-    for (let i = 0; i < 46; i++) {
+    for (let i = 0; i < 130; i++) {
       const b = document.createElement("i");
       b.className = "espuma";
-      const t = azar(10, 30);
+      const t = azar(3, 9);
       Object.assign(b.style, { width: `${t}px`, height: `${t}px`, left: `${x}px`, top: `${y}px` });
       capaFija().appendChild(b);
       // el chorro sale en abanico hacia arriba y al lado indicado
       const ang = (-Math.PI / 2) + dir * azar(0.15, 0.9);
       const r = azar(120, Math.min(innerWidth, 520) * 0.85);
-      G.timeline({ delay: i * 0.012, onComplete: () => b.remove() })
+      G.timeline({ delay: i * 0.006, onComplete: () => b.remove() })
         .fromTo(b, { scale: 0.2, opacity: 1 }, { x: Math.cos(ang) * r, y: Math.sin(ang) * r, scale: azar(0.8, 1.6),
           duration: azar(0.4, 0.7), ease: "power2.out" })
         .to(b, { y: `+=${azar(30, 90)}`, scale: "*=1.15", duration: azar(1.2, 2), ease: "sine.in" })
