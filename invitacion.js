@@ -172,7 +172,7 @@ const EVENTO = {
   /* Cada danzante es un grupo propio (para animarlos por separado). El cuerpo
    * de ambos viene en una sola forma: se recorta por esta línea, que pasa entre
    * los dos sin cortar los brazos que se juntan en el pompón. */
-  const CORTE_ELLA = [[0, 0], [632, 0], [632, 140], [700, 280], [870, 560], [870, 1090], [0, 1090]];
+  const CORTE_ELLA = [[0, 0], [568, 0], [568, 66], [592, 96], [625, 108], [650, 160], [700, 280], [870, 560], [870, 1090], [0, 1090]];
   const figuras = {};
   function grupoFigura(fig) {
     const d = document.createElement("div");
