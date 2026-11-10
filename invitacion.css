@@ -106,10 +106,10 @@ body.cerrado .invitacion { visibility: hidden; }
 
 /* escena: tarjeta con el arco iluminado y la pareja */
 .hero {
-  position: relative; margin: 0 16px; aspect-ratio: 1080 / 1180; overflow: hidden;
+  position: relative; margin: 0 16px; aspect-ratio: 1080 / 1350; overflow: hidden; /* foto completa: el arco entra entero */
   border-radius: 28px; background: #cfe3f2; box-shadow: var(--sombra-2);
 }
-.hero-capa { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%;
+.hero-capa { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%;
   will-change: transform, opacity; }
 #img-fondo { filter: brightness(1.38) saturate(1.18) contrast(.9); }
 #img-arco { filter: brightness(1.3) saturate(1.2) contrast(.95); }
@@ -119,7 +119,7 @@ body.cerrado .invitacion { visibility: hidden; }
     linear-gradient(180deg, rgba(255, 255, 255, .55) 0%, rgba(255, 255, 255, 0) 28%),
     linear-gradient(0deg, rgba(255, 253, 249, .55) 0%, rgba(255, 253, 249, 0) 18%);
 }
-.pareja { position: absolute; left: 6%; right: 6%; bottom: 2%; margin: 0; cursor: pointer; -webkit-tap-highlight-color: transparent;
+.pareja { position: absolute; left: 10%; right: 10%; bottom: 2%; margin: 0; cursor: pointer; -webkit-tap-highlight-color: transparent;
   will-change: transform; } /* capa propia: flota sin redibujar sus miles de formas */
 .lienzo { position: relative; width: 100%; aspect-ratio: 1230 / 1090; }
 /* cada capa (cuerpos y cada prenda) se compone por separado: moverla no la redibuja */
