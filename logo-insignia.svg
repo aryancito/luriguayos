@@ -6,8 +6,21 @@
 <text class="b" font-size="24" letter-spacing="3" fill="#fff"><textPath href="#arr" startOffset="50%" text-anchor="middle">ASOCIACIÓN DE LURIGUAYOS</textPath></text>
 <text class="b" font-size="22" letter-spacing="3" fill="#ffbe0b"><textPath href="#aba" startOffset="50%" text-anchor="middle">REVELACIÓN · FANÁTICOS · JULI</textPath></text>
 <circle cx="62" cy="210" r="7" fill="#ffbe0b"/><circle cx="358" cy="210" r="7" fill="#ffbe0b"/>
-<path d="M140 296 V196 A70 70 0 0 1 280 196 V296" fill="none" stroke="#7a0f24" stroke-width="22"/>
-<rect x="120" y="292" width="180" height="12" rx="3" fill="url(#ag)"/>
-<g transform="translate(210 150) scale(1.0)"><circle cx="-9" cy="-6" r="10" fill="#f72585"/><circle cx="9" cy="-6" r="10" fill="#8ac926"/><circle cx="0" cy="8" r="11" fill="#ffbe0b"/><circle cx="-13" cy="9" r="8" fill="#3a86ff"/><circle cx="13" cy="9" r="8" fill="#fb5607"/><circle cx="-4" cy="2" r="3" fill="#fff" opacity=".6"/></g>
-<text class="l" x="168" y="266" font-size="48" text-anchor="middle" fill="#8338ec" style="paint-order:stroke" stroke="#fff" stroke-width="4">A</text><text class="l" x="196" y="266" font-size="48" text-anchor="middle" fill="#f72585" style="paint-order:stroke" stroke="#fff" stroke-width="4">L</text><text class="l" x="224" y="266" font-size="48" text-anchor="middle" fill="#ffbe0b" style="paint-order:stroke" stroke="#fff" stroke-width="4">R</text><text class="l" x="252" y="266" font-size="48" text-anchor="middle" fill="#3a86ff" style="paint-order:stroke" stroke="#fff" stroke-width="4">F</text>
+
+
+
+
+<path fill-rule="evenodd" fill="#7a0f24" d="M132 146 H288 V300 H132 Z M170 300 V214 A40 40 0 0 1 250 214 V300 Z"/><path d="M148 214 A62 62 0 0 1 272 214" fill="none" stroke="#a3173a" stroke-width="2.2"/><line x1="170.0" y1="214.0" x2="148.0" y2="214.0" stroke="#a3173a" stroke-width="2.2"/><line x1="172.0" y1="201.6" x2="151.0" y2="194.8" stroke="#a3173a" stroke-width="2.2"/><line x1="177.6" y1="190.5" x2="159.8" y2="177.6" stroke="#a3173a" stroke-width="2.2"/><line x1="186.5" y1="181.6" x2="173.6" y2="163.8" stroke="#a3173a" stroke-width="2.2"/><line x1="197.6" y1="176.0" x2="190.8" y2="155.0" stroke="#a3173a" stroke-width="2.2"/><line x1="210.0" y1="174.0" x2="210.0" y2="152.0" stroke="#a3173a" stroke-width="2.2"/><line x1="222.4" y1="176.0" x2="229.2" y2="155.0" stroke="#a3173a" stroke-width="2.2"/><line x1="233.5" y1="181.6" x2="246.4" y2="163.8" stroke="#a3173a" stroke-width="2.2"/><line x1="242.4" y1="190.5" x2="260.2" y2="177.6" stroke="#a3173a" stroke-width="2.2"/><line x1="248.0" y1="201.6" x2="269.0" y2="194.8" stroke="#a3173a" stroke-width="2.2"/><line x1="250.0" y1="214.0" x2="272.0" y2="214.0" stroke="#a3173a" stroke-width="2.2"/><path fill="#ffbe0b" stroke="#5c0a1c" stroke-width="1.5" d="M206.5 174.2 L202.4 149.4 L217.6 149.4 L213.5 174.2 Z"/>
+<rect x="126" y="130" width="168" height="16" rx="2" fill="#7a0f24"/>
+<rect x="126" y="141" width="168" height="3" fill="#ffbe0b"/>
+<path d="M188 130 V122 H198 V116 H222 V122 H232 V130 Z" fill="#7a0f24"/>
+<circle cx="210" cy="122" r="3.2" fill="#ffbe0b"/>
+<rect x="128" y="207" width="45" height="8" rx="1.5" fill="#a3173a"/><rect x="247" y="207" width="45" height="8" rx="1.5" fill="#a3173a"/>
+<rect x="128" y="213" width="45" height="2" fill="#ffbe0b"/><rect x="247" y="213" width="45" height="2" fill="#ffbe0b"/>
+<g stroke="#a3173a" stroke-width="2"><line x1="142" y1="222" x2="142" y2="282"/><line x1="160" y1="222" x2="160" y2="282"/>
+<line x1="260" y1="222" x2="260" y2="282"/><line x1="278" y1="222" x2="278" y2="282"/></g>
+<g fill="#ffbe0b"><circle cx="151" cy="236" r="3.4"/><circle cx="151" cy="262" r="3.4"/><circle cx="269" cy="236" r="3.4"/><circle cx="269" cy="262" r="3.4"/>
+<circle cx="151" cy="178" r="3.4"/><circle cx="269" cy="178" r="3.4"/></g>
+<rect x="126" y="284" width="49" height="16" rx="2" fill="#a3173a"/><rect x="245" y="284" width="49" height="16" rx="2" fill="#a3173a"/>
+<rect x="132" y="300" width="156" height="10" rx="2" fill="url(#ag)"/><path d="M210 176 V188" stroke="#7a0f24" stroke-width="2.5"/><g transform="translate(210 198) scale(0.75)"><circle cx="-9" cy="-6" r="10" fill="#f72585"/><circle cx="9" cy="-6" r="10" fill="#8ac926"/><circle cx="0" cy="8" r="11" fill="#ffbe0b"/><circle cx="-13" cy="9" r="8" fill="#3a86ff"/><circle cx="13" cy="9" r="8" fill="#fb5607"/><circle cx="-4" cy="2" r="3" fill="#fff" opacity=".6"/></g><text class="l" x="184.0" y="272" font-size="30" text-anchor="middle" fill="#8338ec" style="paint-order:stroke" stroke="#fff" stroke-width="3">A</text><text class="l" x="201.5" y="272" font-size="30" text-anchor="middle" fill="#f72585" style="paint-order:stroke" stroke="#fff" stroke-width="3">L</text><text class="l" x="219.0" y="272" font-size="30" text-anchor="middle" fill="#ffbe0b" style="paint-order:stroke" stroke="#fff" stroke-width="3">R</text><text class="l" x="236.5" y="272" font-size="30" text-anchor="middle" fill="#3a86ff" style="paint-order:stroke" stroke="#fff" stroke-width="3">F</text>
 </svg>
