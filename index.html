@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fffdf9">
+<title>Invitación · Recepción Luriguayos</title>
+<meta name="description" content="La Asociación de Luriguayos Revelación Fanáticos Juli te invita a su recepción.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="logo-marca.png">
+<link rel="stylesheet" href="invitacion.css?v=31">
+</head>
+<body class="cerrado">
+
+<!-- Sobre: pantalla inicial, se abre al tocar -->
+<section id="sobre" class="sobre" aria-label="Abrir invitación">
+  <div class="sobre-cuerpo">
+    <div class="solapa" aria-hidden="true"></div>
+    <div class="sobre-texto">
+      <span class="sobre-para">Tienes una invitación de</span>
+      <b class="sobre-de" data-evento="organiza"></b>
+    </div>
+    <button class="sello" id="btn-abrir" aria-label="Abrir la invitación">
+      <img class="sello-logo" src="logo-marca.png" alt="" width="80" height="80">
+    </button>
+    <span class="sobre-pista">Toca el sello para abrir</span>
+  </div>
+</section>
+
+<main class="invitacion" id="invitacion" aria-hidden="true">
+  <!-- decoración del afiche: banderines e instrumentos de la agrupación -->
+  <div class="banderines-top" aria-hidden="true"></div>
+  <div class="deco" aria-hidden="true">
+    <img class="inst deco-bombo" src="img/bombo.svg" alt="">
+    <img class="inst deco-zampona" src="img/zampona.svg" alt="">
+    <img class="inst deco-quena" src="img/quena.svg" alt="">
+    <img class="inst deco-charango" src="img/charango.svg" alt="">
+    <img class="inst deco-tinya" src="img/tinya.svg" alt="">
+    <img class="inst deco-pompones" src="img/pompones.svg" alt="">
+    <img class="inst deco-pompones-2" src="img/pompones.svg" alt="">
+    <i class="confeti c1"></i><i class="confeti c2"></i><i class="confeti c3"></i><i class="confeti c4"></i>
+    <i class="confeti c5"></i><i class="confeti c6"></i><i class="confeti c7"></i><i class="confeti c8"></i>
+  </div>
+
+  <header class="cabecera">
+    <img class="cab-logo" src="logo-marca.png" alt="" width="58" height="58">
+    <div class="portada">
+      <p class="kicker">Asociación de</p>
+      <h1 class="titulo">Luriguayos <span>Revelación</span></h1>
+      <p class="subtitulo">Fanáticos · Juli</p>
+    </div>
+  </header>
+
+  <section class="mensaje">
+    <p class="te-invita">te invita cordialmente a nuestra</p>
+    <h2 class="evento" data-evento="tipo"></h2>
+    <p class="lema">Música <i></i> Danza <i></i> Tradición</p>
+  </section>
+
+  <section class="hero">
+    <!-- escena: el arco de Juli (fondo.py) y la pareja de danzantes -->
+    <img id="img-fondo" class="hero-capa" src="data/fondo.svg" alt="" aria-hidden="true">
+    <img id="img-arco" class="hero-capa" src="data/arco.svg" alt="" aria-hidden="true">
+    <div class="hero-velo" aria-hidden="true"></div>
+    <figure class="pareja" id="pareja" title="Toca para cambiar los colores">
+      <div class="lienzo" id="lienzo" role="img" aria-label="Pareja de danzantes luriguayos"></div>
+      <p class="cambio" id="cambio" aria-hidden="true">✨ ¡A vestirse de luriguayos! ✨</p>
+    </figure>
+  </section>
+  <p class="pareja-pista">Toca la pareja para cambiar sus colores</p>
+
+  <p class="texto revelar" data-evento="mensaje"></p>
+
+  <!-- franja central del afiche: hora | FECHA | lugar -->
+  <section class="detalles franja revelar">
+    <div class="f-lado"><small>Hora</small><b id="d-hora"></b></div>
+    <div class="f-centro">
+      <b class="f-dia"><span id="d-dia">—</span> de <span id="d-mes-largo">—</span></b>
+      <span id="d-fecha" class="f-fecha"></span>
+      <span id="d-mes" hidden></span>
+    </div>
+    <div class="f-lado"><small>Lugar</small><b class="dato-extra" data-evento="direccion"></b></div>
+  </section>
+  <section class="local revelar">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+    <b data-evento="lugar"></b>
+    <a class="dato-accion" id="btn-mapa" target="_blank" rel="noopener">Ver en el mapa</a>
+  </section>
+
+  <section class="cuenta revelar" id="cuenta" hidden>
+    <p>Faltan</p>
+    <div class="cuenta-numeros">
+      <div><b id="c-dias">0</b><small>días</small></div>
+      <div><b id="c-horas">0</b><small>horas</small></div>
+      <div><b id="c-min">0</b><small>min</small></div>
+      <div><b id="c-seg">0</b><small>seg</small></div>
+    </div>
+  </section>
+
+  <section class="ubicacion revelar" id="ubicacion">
+    <h3>¿Cómo llegar?</h3>
+    <div class="mapa">
+      <iframe id="mapa-iframe" title="Mapa del lugar de la recepción" loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+    </div>
+    <a class="boton principal" id="btn-como-llegar" target="_blank" rel="noopener">Abrir ruta en Google Maps</a>
+  </section>
+
+  <section class="acciones revelar">
+    <a class="boton principal" id="btn-confirmar" target="_blank" rel="noopener">Confirmar asistencia</a>
+    <div class="acciones-fila">
+      <button class="boton" id="btn-calendario">Agendar</button>
+      <button class="boton" id="btn-compartir">Compartir</button>
+    </div>
+  </section>
+
+  <footer class="pie revelar">
+    <p class="pie-grande">¡Te esperamos!</p>
+    <img class="pie-logo" src="logo.png" alt="Asociación de Luriguayos Revelación Fanáticos Juli" width="240" height="256">
+    <div class="aguayo" aria-hidden="true"></div>
+  </footer>
+</main>
+
+<div class="pompones" id="pompones" aria-hidden="true"></div>
+<audio id="musica" src="data/luriguayo.mp3" loop preload="auto"></audio>
+<button id="btn-espuma" class="btn-espuma" aria-label="Lanzar espuma de carnaval" hidden>
+  <svg viewBox="0 0 40 48" width="26" height="31" aria-hidden="true">
+    <rect x="9" y="16" width="20" height="30" rx="4" fill="#fff"/>
+    <rect x="9" y="24" width="20" height="10" fill="#f2b705"/>
+    <rect x="13" y="9" width="12" height="8" rx="2" fill="#fff"/>
+    <path d="M25 11 h6 v4 h-6z" fill="#fff"/>
+    <circle cx="35" cy="8" r="3" fill="#fff"/><circle cx="37" cy="2.5" r="2" fill="#fff"/><circle cx="31" cy="3" r="1.6" fill="#fff"/>
+  </svg>
+</button>
+<button id="btn-musica" class="btn-musica" aria-label="Silenciar música" hidden>
+  <span class="ondas" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+</button>
+<div id="toast" class="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="data/escena.js?v=11"></script>
+<script src="motor.js?v=4"></script>
+<script src="silueta.js?v=1"></script>
+<script src="carnaval.js?v=2"></script>
+<script src="invitacion.js?v=30"></script>
+</body>
+</html>

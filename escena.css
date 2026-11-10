@@ -1,0 +1,57 @@
+[hidden] { display: none !important; }
+
+.disposicion {
+  display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px;
+  padding: 20px 24px 40px; max-width: 1600px; margin: 0 auto;
+}
+.escenario-modelo {
+  position: relative;
+  background:
+    repeating-linear-gradient(45deg, transparent 0 18px, color-mix(in srgb, var(--borde) 30%, transparent) 18px 19px),
+    var(--fondo-2);
+  border: 1px solid var(--borde); border-radius: var(--radio); box-shadow: var(--sombra);
+  overflow: hidden;
+}
+#escena path { fill-rule: nonzero; }
+#escena { display: block; width: 100%; height: auto; max-height: calc(100vh - 190px); }
+.piso { fill: rgba(60, 30, 10, .16); }
+.fantasma { fill: color-mix(in srgb, var(--borde) 70%, transparent); stroke: none; }
+/* el contorno punteado solo se ve mientras las prendas no están puestas */
+#escena.guia .fantasma { stroke: var(--tinta-2); stroke-width: 1.5; stroke-dasharray: 6 5; stroke-opacity: .5; }
+.prenda { cursor: pointer; }
+.prenda:hover, .prenda.hover { filter: brightness(1.07) saturate(1.12); }
+.prenda.sel, .prenda.sel:hover { filter: url(#aura); }
+.brillo { pointer-events: none; mix-blend-mode: soft-light; }
+#base { pointer-events: none; }
+
+.etiqueta {
+  position: absolute; pointer-events: none; padding: 5px 10px; border-radius: 999px;
+  background: var(--tinta); color: var(--fondo); font-size: 12.5px; font-weight: 600;
+  opacity: 0; transform: translate(-50%, -150%); white-space: nowrap; transition: opacity .15s;
+}
+
+.panel { display: flex; flex-direction: column; gap: 16px; align-self: start; position: sticky; top: 150px; }
+.panel-vacio, .panel-prenda {
+  background: var(--tarjeta); border: 1px solid var(--borde); border-radius: var(--radio);
+  box-shadow: var(--sombra); padding: 16px;
+}
+.panel-vacio p { margin: 6px 0 12px; color: var(--tinta-2); font-size: 13.5px; }
+.panel-prenda { display: grid; gap: 12px; }
+.lista-prendas { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.lista-prendas .lista-titulo { width: 100%; font: 600 13px Fraunces, serif; color: var(--tinta-2); margin-top: 6px; }
+.lista-prendas button {
+  font: 500 12.5px Inter, sans-serif; border: 1px solid var(--borde); background: var(--fondo);
+  color: var(--tinta); border-radius: 999px; padding: 5px 10px; cursor: pointer;
+}
+.lista-prendas button:hover { border-color: var(--grana); color: var(--grana); }
+
+@media (max-width: 960px) {
+  .disposicion { grid-template-columns: 1fr; padding: 14px 16px 30px; }
+  .panel { position: static; }
+  #escena { max-height: none; }
+}
+
+.tono-silueta input[type=color] { width: 26px; height: 26px; padding: 0; border: 1px solid var(--borde); border-radius: 50%; background: none; cursor: pointer; }
+.tono-silueta input[type=color]::-webkit-color-swatch-wrapper { padding: 0; }
+.tono-silueta input[type=color]::-webkit-color-swatch { border: 0; border-radius: 50%; }
+#cuerpo { pointer-events: none; }

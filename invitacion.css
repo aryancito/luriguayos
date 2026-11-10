@@ -1,0 +1,339 @@
+/* Invitación · estilo claro y festivo
+ * Blanco luminoso, mucho aire, tipografía grande y toques de color del
+ * carnaval (fucsia, turquesa, amarillo) en acentos, no en fondos.
+ */
+:root {
+  --fondo: #f3eefc;
+  --hoja: #ffffff;
+  --tarjeta: #ffffff;
+  --tinta: #1f2430;
+  --tinta-2: #6b6f7b;
+  --linea: #ece6dc;
+  --fucsia: #f72585;
+  --turquesa: #06b6a4;
+  --amarillo: #ffbe0b;
+  --rojo: #e63946;
+  --anil: #3a86ff;
+  --verde: #8ac926;
+  --morado: #8338ec;
+  --naranja: #fb5607;
+  --vino: #8e1438;
+  --sombra: 0 10px 30px rgba(31, 36, 48, .08);
+  --sombra-2: 0 16px 40px rgba(31, 36, 48, .12);
+  --radio: 22px;
+  --aguayo: repeating-linear-gradient(90deg,
+    var(--rojo) 0 10px, var(--amarillo) 10px 14px, var(--fucsia) 14px 24px, var(--verde) 24px 28px,
+    var(--anil) 28px 38px, var(--amarillo) 38px 42px, var(--vino) 42px 52px, #ff7a00 52px 56px);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font: 16px/1.55 Inter, system-ui, sans-serif;
+  color: var(--tinta);
+  background: var(--fondo);
+  min-height: 100svh;
+  overflow-x: hidden;
+}
+body.cerrado { overflow: hidden; }
+/* con el sobre cerrado la invitación no se dibuja (la pareja vectorial es pesada) */
+body.cerrado .invitacion { visibility: hidden; }
+
+/* ---------- sobre ---------- */
+.sobre {
+  position: fixed; inset: 0; z-index: 20;
+  display: grid; place-items: center; padding: 24px;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(229, 25, 126, .14), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(15, 163, 163, .16), transparent 45%),
+    radial-gradient(circle at 80% 15%, rgba(245, 183, 0, .16), transparent 35%),
+    var(--hoja);
+}
+.sobre-cuerpo {
+  position: relative; width: min(340px, 86vw); aspect-ratio: 3 / 4;
+  background: var(--tarjeta); border-radius: 20px; box-shadow: var(--sombra-2), 0 0 0 1px var(--linea);
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+  padding: 28px 22px; overflow: hidden; text-align: center;
+}
+.sobre-cuerpo::before { content: ""; position: absolute; inset: auto 0 0 0; height: 10px; background: var(--aguayo); }
+.solapa {
+  position: absolute; inset: 0 0 auto 0; height: 48%;
+  background: linear-gradient(165deg, #fff6fa, #fde7f1);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform-origin: top center;
+}
+.sobre-texto { position: relative; margin-bottom: 22px; }
+.sobre-para { display: block; font-size: 12.5px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--tinta-2); }
+.sobre-de { display: block; margin-top: 8px; font: 700 20px/1.25 "Baloo 2", system-ui, sans-serif; color: var(--tinta); }
+.sello {
+  position: absolute; top: 48%; left: 50%; transform: translate(-50%, -50%);
+  width: 104px; height: 104px; border-radius: 50%; border: 0; cursor: pointer;
+  background: var(--tarjeta);
+  box-shadow: 0 10px 24px rgba(229, 25, 126, .25), 0 0 0 4px var(--fucsia), 0 0 0 9px #fff, 0 0 0 10px var(--linea);
+  display: grid; place-items: center;
+}
+.sello-logo { width: 72px; height: 72px; }
+.sobre-pista { position: relative; font-size: 13px; color: var(--fucsia); font-weight: 600; margin-bottom: 6px; }
+
+/* ---------- hoja ---------- */
+.invitacion {
+  position: relative; z-index: 1;
+  width: min(480px, 100%); margin: 0 auto;
+  background: var(--hoja);
+  min-height: 100svh;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.aguayo { height: 8px; background: var(--aguayo); }
+
+/* encabezado: logo + nombre */
+.cabecera { display: flex; align-items: center; gap: 12px; padding: 18px 20px 6px; }
+.cab-logo { width: 52px; height: 52px; flex: none; }
+.kicker { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--tinta-2); }
+.titulo { margin: 0; font: 900 22px/1.1 "Baloo 2", system-ui, sans-serif; color: var(--tinta); letter-spacing: -.01em; }
+.titulo span { font-style: italic; color: var(--fucsia); }
+.subtitulo { margin: 2px 0 0; font-size: 11.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--turquesa); }
+
+/* titular */
+.mensaje { text-align: center; padding: 22px 20px 14px; }
+.te-invita { margin: 0; font: italic 600 18px "Baloo 2", system-ui, sans-serif; color: var(--tinta-2); }
+.evento {
+  margin: 2px 0 0; font: 900 clamp(54px, 17vw, 76px)/1 "Baloo 2", system-ui, sans-serif; letter-spacing: -.02em;
+  background: linear-gradient(100deg, var(--fucsia) 0%, var(--rojo) 30%, var(--amarillo) 50%, var(--turquesa) 70%, var(--fucsia) 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+/* escena: tarjeta con el arco iluminado y la pareja */
+.hero {
+  position: relative; margin: 0 16px; aspect-ratio: 1080 / 1180; overflow: hidden;
+  border-radius: 28px; background: #cfe3f2; box-shadow: var(--sombra-2);
+}
+.hero-capa { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%;
+  will-change: transform, opacity; }
+#img-fondo { filter: brightness(1.38) saturate(1.18) contrast(.9); }
+#img-arco { filter: brightness(1.3) saturate(1.2) contrast(.95); }
+.hero-velo {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .55) 0%, rgba(255, 255, 255, 0) 28%),
+    linear-gradient(0deg, rgba(255, 253, 249, .55) 0%, rgba(255, 253, 249, 0) 18%);
+}
+.pareja { position: absolute; left: 6%; right: 6%; bottom: 2%; margin: 0; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  will-change: transform; } /* capa propia: flota sin redibujar sus miles de formas */
+.lienzo { position: relative; width: 100%; aspect-ratio: 1230 / 1090; }
+/* cada capa (cuerpos y cada prenda) se compone por separado: moverla no la redibuja */
+.capa { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; will-change: transform; }
+.capa path { fill-rule: nonzero; }
+.pareja-pista { text-align: center; font-size: 12.5px; color: var(--tinta-2); margin: 10px 0 0; }
+.cambio {
+  position: absolute; left: 50%; top: 34%; translate: -50% 0; margin: 0; opacity: 0; pointer-events: none;
+  padding: 8px 16px; border-radius: 999px; white-space: nowrap;
+  font: italic 900 16px "Baloo 2", system-ui, sans-serif; color: var(--fucsia); background: #fff; box-shadow: var(--sombra-2);
+}
+
+.texto { margin: 22px auto 0; max-width: 32ch; padding: 0 20px; text-align: center; color: var(--tinta-2); font-size: 16px; }
+
+/* datos: fecha, hora y lugar */
+.detalles { display: grid; gap: 12px; padding: 24px 16px 0; }
+.dato {
+  display: grid; grid-template-columns: 56px 1fr; gap: 2px 14px; align-items: center;
+  background: var(--tarjeta); border-radius: var(--radio); padding: 16px 18px;
+  box-shadow: var(--sombra), 0 0 0 1px var(--linea);
+}
+.dato-icono {
+  width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center;
+  color: var(--turquesa); background: #e7f6f6;
+}
+.dato:nth-child(3) .dato-icono { color: var(--fucsia); background: #fde8f2; }
+.calendario { display: flex; flex-direction: column; overflow: hidden; background: #fff; box-shadow: 0 0 0 1.5px var(--linea); gap: 0; }
+.calendario small { display: block; width: 100%; padding: 3px 0; text-align: center; font-size: 10.5px; font-weight: 800;
+  letter-spacing: .12em; color: #fff; background: var(--rojo); }
+.calendario b { flex: 1; display: grid; place-items: center; font: 900 24px/1 "Baloo 2", system-ui, sans-serif; color: var(--tinta); }
+.dato small { display: block; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--tinta-2); }
+.dato b { display: block; font: 700 18px/1.25 "Baloo 2", system-ui, sans-serif; color: var(--tinta); }
+.dato b.pendiente { font-weight: 600; color: var(--tinta-2); font-style: italic; }
+.dato-extra { display: block; font-size: 13.5px; color: var(--tinta-2); }
+.dato-accion { grid-column: 2; justify-self: start; margin-top: 6px; font-size: 13.5px; font-weight: 700;
+  color: var(--fucsia); text-decoration: none; }
+.dato-accion[hidden] { display: none; }
+.pendiente { color: var(--tinta-2); font-style: italic; }
+
+/* cuenta regresiva */
+.cuenta { margin: 16px 16px 0; padding: 18px 16px; border-radius: var(--radio); text-align: center;
+  background: var(--tarjeta); box-shadow: var(--sombra), 0 0 0 1px var(--linea); }
+.cuenta[hidden] { display: none; }
+.cuenta p { margin: 0 0 10px; font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--tinta-2); }
+.cuenta-numeros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.cuenta-numeros div { border-radius: 14px; padding: 10px 0 8px; }
+.cuenta-numeros div:nth-child(1) { background: #fde8f2; color: var(--fucsia); }
+.cuenta-numeros div:nth-child(2) { background: #fff4d6; color: #b07f00; }
+.cuenta-numeros div:nth-child(3) { background: #e7f6f6; color: var(--turquesa); }
+.cuenta-numeros div:nth-child(4) { background: #e9eefb; color: var(--anil); }
+.cuenta-numeros b { display: block; font: 900 28px/1.05 "Baloo 2", system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+.cuenta-numeros small { font-size: 11px; font-weight: 600; color: var(--tinta-2); }
+
+/* mapa */
+.ubicacion { padding: 30px 16px 0; display: grid; gap: 12px; }
+.ubicacion[hidden] { display: none; }
+.ubicacion h3, .pie-grande { margin: 0; text-align: center; font: 900 28px "Baloo 2", system-ui, sans-serif; color: var(--tinta); }
+.mapa { border-radius: var(--radio); overflow: hidden; aspect-ratio: 4 / 3; background: #eef0f2;
+  box-shadow: var(--sombra), 0 0 0 1px var(--linea); }
+.mapa iframe { display: block; width: 100%; height: 100%; border: 0; }
+
+/* botones */
+.acciones { display: grid; gap: 10px; padding: 26px 16px 0; }
+.acciones-fila { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.boton {
+  position: relative; overflow: hidden; display: block; width: 100%; text-align: center; text-decoration: none;
+  font: 700 16px Inter, sans-serif; padding: 15px 16px; border-radius: 16px; cursor: pointer;
+  background: var(--tarjeta); color: var(--tinta); border: 0; box-shadow: 0 0 0 1.5px var(--linea);
+  -webkit-tap-highlight-color: transparent; transition: transform .12s;
+}
+.boton:active { transform: scale(.98); }
+.boton.principal { background: var(--fucsia); color: #fff; box-shadow: 0 10px 22px rgba(229, 25, 126, .28); }
+#btn-como-llegar { background: var(--turquesa); box-shadow: 0 10px 22px rgba(15, 163, 163, .28); }
+.boton.principal::after {
+  content: ""; position: absolute; inset: 0 auto 0 -60%; width: 40%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .45), transparent);
+  transform: skewX(-20deg); animation: destello 3.4s ease-in-out infinite;
+}
+@keyframes destello { 0%, 60% { left: -60%; } 100% { left: 130%; } }
+.boton[aria-disabled="true"] { background: #eceae6; color: var(--tinta-2); box-shadow: none; }
+.boton[aria-disabled="true"]::after { animation: none; }
+
+/* pie */
+.pie { text-align: center; padding: 40px 0 0; }
+.pie-logo { display: block; width: 200px; height: auto; margin: 18px auto 30px; }
+
+/* pompones en los márgenes (pantallas anchas) */
+.pompones { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.pompon { position: absolute; border-radius: 50%; opacity: .85; will-change: transform;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, .6), transparent 45%), var(--c); }
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom)); z-index: 30;
+  background: var(--tinta); color: #fff; padding: 10px 16px; border-radius: 999px; font-size: 14px;
+  opacity: 0; pointer-events: none; white-space: nowrap;
+}
+
+/* botones flotantes: música y espuma */
+.btn-musica, .btn-espuma {
+  position: fixed; right: 16px; z-index: 15;
+  width: 50px; height: 50px; border-radius: 50%; border: 0; cursor: pointer;
+  display: grid; place-items: center; -webkit-tap-highlight-color: transparent;
+}
+.btn-musica { bottom: calc(16px + env(safe-area-inset-bottom)); background: var(--fucsia); box-shadow: 0 8px 20px rgba(229, 25, 126, .35); }
+.btn-espuma { bottom: calc(76px + env(safe-area-inset-bottom)); background: var(--turquesa); box-shadow: 0 8px 20px rgba(15, 163, 163, .35); }
+.btn-musica[hidden], .btn-espuma[hidden] { display: none; }
+.ondas { display: flex; align-items: flex-end; gap: 3px; height: 20px; }
+.ondas i { width: 4px; height: 100%; border-radius: 2px; background: #fff; transform-origin: bottom;
+  animation: onda .9s ease-in-out infinite; }
+.ondas i:nth-child(2) { animation-delay: -.3s; }
+.ondas i:nth-child(3) { animation-delay: -.6s; }
+.ondas i:nth-child(4) { animation-delay: -.15s; }
+@keyframes onda { 0%, 100% { transform: scaleY(.3); } 50% { transform: scaleY(1); } }
+.btn-musica.mudo { background: #9aa0aa; }
+.btn-musica.mudo .ondas i { animation: none; transform: scaleY(.2); }
+.btn-musica.mudo::after { content: ""; position: absolute; width: 30px; height: 3px; background: #fff; border-radius: 2px; transform: rotate(-45deg); }
+
+/* ---------- carnaval ---------- */
+.carnaval { position: fixed; inset: 0; pointer-events: none; z-index: 12; overflow: hidden; }
+.carnaval .globo { position: absolute; top: 0; pointer-events: auto; cursor: pointer; will-change: transform;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .15)); opacity: .92; }
+.carnaval .serpentina.cae { position: absolute; top: 0; will-change: transform; }
+.picado { position: absolute; width: 9px; height: 6px; will-change: transform; }
+.espuma { position: absolute; margin: -10px 0 0 -10px; border-radius: 50%; will-change: transform, opacity;
+  background: radial-gradient(circle at 35% 30%, #fff 0 45%, #eef3f7 70%, #d5dde4); box-shadow: 0 1px 3px rgba(0, 0, 0, .15); }
+.guirnalda { position: absolute; inset: 0 0 auto 0; height: 0; z-index: 2; pointer-events: none; }
+.guirnalda .banderines { position: absolute; top: 8px; left: 0; width: 100%; height: 24px; }
+.guirnalda .serpentina { position: absolute; top: 10px; will-change: transform; }
+
+@media (min-width: 600px) {
+  .invitacion { margin: 28px auto; border-radius: 30px; overflow: hidden; min-height: 0; box-shadow: var(--sombra-2); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .evento { background-position: 0 0 !important; }
+  .boton.principal::after, .ondas i { animation: none; }
+}
+
+/* =====================================================================
+   AFICHE DE CARNAVAL: banderines, instrumentos en los bordes, título de colores
+   ===================================================================== */
+.invitacion { overflow: hidden; }
+.invitacion > *:not(.deco):not(.banderines-top) { position: relative; z-index: 1; }
+.aguayo { display: none; }
+
+.banderines-top {
+  position: relative; z-index: 2; height: 46px; margin-bottom: -18px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='46'%3E%3Cpath d='M0 4 Q120 22 240 4' fill='none' stroke='%23999' stroke-opacity='.4' stroke-width='1.5'/%3E%3Cpath d='M4 6 h24 l-12 26z' fill='%238338ec'/%3E%3Cpath d='M34 10 h24 l-12 26z' fill='%23ffbe0b'/%3E%3Cpath d='M64 13 h24 l-12 26z' fill='%23f72585'/%3E%3Cpath d='M94 14 h24 l-12 26z' fill='%238ac926'/%3E%3Cpath d='M124 14 h24 l-12 26z' fill='%233a86ff'/%3E%3Cpath d='M154 13 h24 l-12 26z' fill='%23fb5607'/%3E%3Cpath d='M184 10 h24 l-12 26z' fill='%2306d6a0'/%3E%3Cpath d='M214 6 h24 l-12 26z' fill='%23f72585'/%3E%3C/svg%3E") repeat-x 0 0 / 240px 46px;
+}
+
+/* instrumentos asomando por los bordes */
+.deco { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.inst { position: absolute; will-change: transform; filter: drop-shadow(0 6px 8px rgba(40, 20, 80, .12)); }
+.deco-bombo     { width: 128px; top: 48px;  left: -30px; rotate: -18deg; }
+.deco-zampona   { width: 96px;  top: 40px;  right: -22px; rotate: 16deg; }
+.deco-quena     { width: 150px; top: 238px; left: -56px; rotate: 62deg; }
+.deco-charango  { width: 62px;  top: 222px; right: -6px;  rotate: 18deg; }
+.deco-tinya     { width: 96px;  top: 1180px; left: -34px; rotate: 12deg; }
+.deco-pompones  { width: 74px;  top: 1160px; right: -20px; rotate: -10deg; }
+.deco-pompones-2{ width: 64px;  bottom: 150px; left: -10px; rotate: 14deg; }
+
+/* confeti suelto */
+.confeti { position: absolute; width: 10px; height: 10px; border-radius: 2px; rotate: 30deg; }
+.c1 { top: 150px; left: 22%; background: var(--fucsia); } .c2 { top: 120px; right: 26%; background: var(--amarillo); border-radius: 50%; }
+.c3 { top: 300px; left: 12%; background: var(--anil); } .c4 { top: 330px; right: 14%; background: var(--verde); border-radius: 50%; }
+.c5 { top: 1180px; left: 8%; background: var(--naranja); } .c6 { top: 1240px; right: 9%; background: var(--morado); }
+.c7 { bottom: 300px; right: 12%; background: var(--fucsia); border-radius: 50%; } .c8 { bottom: 420px; left: 14%; background: var(--amarillo); }
+
+/* encabezado centrado */
+.cabecera { flex-direction: column; text-align: center; gap: 6px; padding: 26px 70px 0; }
+.titulo { font-size: 21px; font-weight: 800; }
+.titulo span { font-style: normal; color: var(--morado); }
+.subtitulo { color: var(--fucsia); }
+
+/* título: letras de colores, gruesas e inclinadas */
+.mensaje { padding: 18px 12px 14px; }
+.te-invita { font: 700 17px "Baloo 2", sans-serif; color: var(--tinta-2); }
+.evento {
+  margin: 4px 0 2px; font: 400 clamp(46px, 14.5vw, 80px)/1 "Lilita One", "Baloo 2", sans-serif; letter-spacing: 0;
+  white-space: nowrap;
+  background: none; -webkit-text-fill-color: currentColor; text-transform: uppercase;
+}
+.letra { display: inline-block; rotate: var(--r); text-shadow: 0 4px 0 rgba(40, 20, 80, .12); }
+.lema { margin: 6px 0 0; display: flex; justify-content: center; align-items: center; gap: 10px;
+  font: 800 13px "Baloo 2", sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--tinta); }
+.lema i { width: 2px; height: 14px; background: var(--tinta); opacity: .5; }
+
+.hero { border-radius: 30px; box-shadow: 0 0 0 6px #fff, 0 0 0 8px var(--amarillo), var(--sombra-2); margin: 6px 18px 0; }
+
+/* franja central: hora | FECHA | lugar */
+.franja { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0; padding: 26px 12px 4px; text-align: center; }
+.f-lado small { display: block; font-size: 10.5px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--tinta-2); }
+.f-lado b { display: block; font: 700 15px/1.2 "Baloo 2", sans-serif; color: var(--tinta); }
+.f-lado b.pendiente { font-style: italic; font-weight: 600; color: var(--tinta-2); }
+.f-centro { padding: 0 14px; border-left: 2px solid var(--tinta); border-right: 2px solid var(--tinta); }
+.f-dia { display: block; font: 400 26px/1.05 "Lilita One", sans-serif; text-transform: uppercase; color: var(--morado); }
+.f-dia #d-dia { color: var(--fucsia); font-size: 34px; }
+.f-fecha { display: block; margin-top: 2px; font: 700 12.5px "Baloo 2", sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--tinta-2); }
+.local { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 8px; padding: 14px 20px 0; text-align: center; color: var(--fucsia); }
+.local b { font: 800 19px "Baloo 2", sans-serif; color: var(--tinta); }
+.local .dato-accion { margin: 0; flex-basis: 100%; font-size: 13.5px; }
+
+.cuenta-numeros b, .ubicacion h3, .pie-grande { font-family: "Lilita One", "Baloo 2", sans-serif; font-weight: 400; }
+.ubicacion h3 { color: var(--morado); }
+.pie-grande { color: var(--fucsia); font-size: 34px; }
+.boton.principal { background: var(--fucsia); }
+#btn-como-llegar { background: var(--morado); box-shadow: 0 10px 22px rgba(131, 56, 236, .28); }
+
+.boton.principal[aria-disabled="true"], .boton[aria-disabled="true"] { background: #efedf3; color: #8a8696; box-shadow: none; }
+.f-lado { min-width: 0; }
+
+/* sobre con el estilo del afiche */
+.sobre { background: #fff url("img/pompones.svg") no-repeat right -20px bottom 30px / 110px; }
+.sobre::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 46px;
+  background: inherit; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='46'%3E%3Cpath d='M4 6 h24 l-12 26z' fill='%238338ec'/%3E%3Cpath d='M34 10 h24 l-12 26z' fill='%23ffbe0b'/%3E%3Cpath d='M64 13 h24 l-12 26z' fill='%23f72585'/%3E%3Cpath d='M94 14 h24 l-12 26z' fill='%238ac926'/%3E%3Cpath d='M124 14 h24 l-12 26z' fill='%233a86ff'/%3E%3Cpath d='M154 13 h24 l-12 26z' fill='%23fb5607'/%3E%3Cpath d='M184 10 h24 l-12 26z' fill='%2306d6a0'/%3E%3Cpath d='M214 6 h24 l-12 26z' fill='%23f72585'/%3E%3C/svg%3E") repeat-x 0 0 / 240px 46px; }
+.sobre::after { content: ""; position: absolute; left: -26px; top: 70px; width: 130px; height: 100px; rotate: -16deg;
+  background: url("img/bombo.svg") no-repeat center / contain; }
+.sello { box-shadow: 0 10px 24px rgba(247, 37, 133, .25), 0 0 0 4px var(--fucsia), 0 0 0 9px #fff, 0 0 0 12px var(--amarillo); }

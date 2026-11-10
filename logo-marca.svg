@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img">
+  <title>Logo · Luriguayos Revelación Fanáticos Juli (símbolo)</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,900&amp;display=swap");
+    .f { font-family: Fraunces, Georgia, "Times New Roman", serif; }
+  </style>
+  <defs>
+    <pattern id="aguayo" width="56" height="16" patternUnits="userSpaceOnUse">
+      <rect width="10" height="16" fill="#c8102e"/><rect x="10" width="4" height="16" fill="#f2b705"/>
+      <rect x="14" width="10" height="16" fill="#e5197e"/><rect x="24" width="4" height="16" fill="#1f9d55"/>
+      <rect x="28" width="10" height="16" fill="#1d4fbf"/><rect x="38" width="4" height="16" fill="#f2b705"/>
+      <rect x="42" width="10" height="16" fill="#7a0f24"/><rect x="52" width="4" height="16" fill="#ff7a00"/>
+    </pattern>
+    <linearGradient id="oro" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6c23e"/><stop offset="1" stop-color="#c98a00"/>
+    </linearGradient>
+  </defs>
+  <g>
+    <!-- arco de Juli -->
+    <path d="M40 214 V112 A80 80 0 0 1 200 112 V214" fill="none" stroke="#7a0f24" stroke-width="30"/>
+    <path d="M18 40 H222" stroke="#7a0f24" stroke-width="0"/>
+    <rect x="10" y="214" width="220" height="16" rx="3" fill="url(#aguayo)"/>
+    <!-- pompón luriguayo -->
+    <g transform="translate(120 140)">
+      <circle cx="0" cy="-26" r="22" fill="#f2b705"/>
+      <circle cx="25" cy="-6" r="22" fill="#1f9d55"/>
+      <circle cx="15" cy="24" r="22" fill="#1d4fbf"/>
+      <circle cx="-16" cy="24" r="22" fill="#e5197e"/>
+      <circle cx="-25" cy="-6" r="22" fill="#c8102e"/>
+      <circle r="15" fill="#ff7a00"/>
+      <circle cx="-6" cy="-6" r="5" fill="#fff" opacity=".7"/>
+    </g>
+    <!-- cordón del pompón -->
+    <path d="M120 32 V88" stroke="#7a0f24" stroke-width="6" stroke-linecap="round"/>
+  </g>
+</svg>
