@@ -32,7 +32,7 @@ const EVENTO = {
   // la historia del cambio de vestuario se cuenta siempre; con "reducir
   // movimiento" en el celular las prendas aparecen con fundido, sin volar
   const sinAnimacion = params.has("sinanim");
-  const suave = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const suave = params.has("suave"); // la transformación es parte de la invitación: siempre se muestra
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
@@ -174,7 +174,22 @@ const EVENTO = {
    * los dos sin cortar los brazos que se juntan en el pompón. */
   const CORTE_ELLA = [[0, 0], [568, 0], [568, 66], [592, 96], [625, 108], [650, 160], [700, 280], [870, 560], [870, 1090], [0, 1090]];
   const figuras = {};
-  const ROSAS = [352, 86, 112, 86]; // x, y, ancho, alto en la escena (sobre la montera)
+  const ROSAS = [352, 86, 112, 86];
+  // aura en forma de llamas alrededor de él
+  const AURA = (() => {
+    const cx = 1000, cy = 560, pts = [];
+    for (let i = 0; i <= 28; i++) {
+      const a = Math.PI * 2 * i / 28, pico = i % 2 ? 1 : 1.32;
+      const rx = 230 * pico, ry = 560 * pico * (Math.sin(a) < 0 ? 1 : 0.85);
+      pts.push([cx + Math.cos(a) * rx, cy + Math.sin(a) * ry * 0.95 - (Math.sin(a) < 0 ? 40 : 0)]);
+    }
+    return "M" + pts.map((p) => p.map((v) => v.toFixed(0)).join(" ")).join(" L") + " Z";
+  })();
+  // cabello Super Saiyajin: mechones en punta hacia arriba
+  const PELO_SSJ = "M896 140 L874 96 L912 112 L906 52 L944 94 L956 30 L978 88 L1006 34 L1012 96 L1050 62 L1036 118 "
+    + "L1066 110 L1034 150 L1030 196 L1012 200 L1002 160 L986 140 L960 128 L930 130 Z";
+  const RAYOS = ["M1150 120 L1120 220 L1160 230 L1110 360", "M840 380 L880 470 L845 480 L890 600",
+    "M1170 650 L1130 730 L1165 740 L1120 850", "M860 160 L900 240 L870 250 L910 330"]; // x, y, ancho, alto en la escena (sobre la montera)
   function grupoFigura(fig) {
     const d = document.createElement("div");
     d.className = `figura figura-${fig}`;
@@ -256,6 +271,25 @@ const EVENTO = {
       ...(ESCENA.casual || []).filter((c) => c.figura === "mujer").flatMap((c) => c.tonos.map((t) => t.d))]
       .map((d) => `<path d="${d}" fill="#fff"/>`).join("");
     figuras.mujer.luz = luz;
+    // él (Super Saiyajin): aura de fuego detrás, silueta dorada y cabello erizado
+    const aura = capaSvg("capa-aura", figuras.varon.el);
+    figuras.varon.el.prepend(aura);
+    aura.innerHTML = `<defs><radialGradient id="grad-aura" cx="50%" cy="60%" r="55%">
+        <stop offset="0" stop-color="#fff7c2" stop-opacity=".95"/><stop offset=".45" stop-color="#ffd23f" stop-opacity=".8"/>
+        <stop offset="1" stop-color="#ff9f1c" stop-opacity="0"/></radialGradient></defs>
+      <path class="llama" fill="url(#grad-aura)" d="${AURA}"/>
+      <path class="llama l2" fill="url(#grad-aura)" opacity=".7" transform="translate(1000 560) scale(1.12 1.05) translate(-1000 -560)" d="${AURA}"/>`;
+    const dorado = capaSvg("capa-dorada", figuras.varon.el);
+    dorado.style.clipPath = cuerpos.varon.style.clipPath;
+    dorado.innerHTML = [ESCENA.silueta.d, ESCENA.cabello.d,
+      ...(ESCENA.casual || []).filter((c) => c.figura === "varon").flatMap((c) => c.tonos.map((t) => t.d))]
+      .map((d) => `<path d="${d}" fill="#ffe680"/>`).join("");
+    const pelo = capaSvg("capa-pelo-ssj", figuras.varon.el);
+    pelo.innerHTML = `<path d="${PELO_SSJ}" fill="#ffd23f" stroke="#e8a317" stroke-width="3" stroke-linejoin="round"/>`;
+    const rayos = capaSvg("capa-rayos", figuras.varon.el);
+    rayos.innerHTML = RAYOS.map((d) => `<path class="rayo" d="${d}" fill="none" stroke="#fffbe0" stroke-width="5"
+      stroke-linejoin="round" stroke-linecap="round"/>`).join("");
+    Object.assign(figuras.varon, { aura, dorado, pelo, rayos });
     // rosas rojas de la montera (llegan volando al final)
     const rosas = capaSvg("capa-rosas", figuras.mujer.el);
     rosas.innerHTML = `<image href="img/rosas.svg" x="${ROSAS[0]}" y="${ROSAS[1]}" width="${ROSAS[2]}" height="${ROSAS[3]}"/>`;
@@ -477,6 +511,7 @@ const EVENTO = {
 
   /* ---------- cambio de vestuario ---------- */
   const CENTRO_ELLA = [490, 560];
+  const CENTRO_EL = [1000, 560];
   const enPantalla = ([x, y]) => {            // punto de la escena -> píxeles de la pantalla
     const r = $("#lienzo").getBoundingClientRect(), [px, py] = pct([x, y]);
     return [r.left + r.width * px / 100, r.top + r.height * py / 100];
@@ -572,26 +607,43 @@ const EVENTO = {
       .to(pompon.capa, { scale: 1.15, duration: 0.15, yoyo: true, repeat: 1 });
   }
 
-  // él: sale corriendo por la derecha y vuelve de un salto, ya vestido
+  // él: transformación Super Saiyajin
   function correrEl(tl) {
     const el = figuras.varon;
-    const suyas = el.prendas.filter((p) => !p.fija).map((p) => p.capa);
-    if (suave) {
-      tl.to(el.casual, { opacity: 0, duration: 0.6 }).to(suyas, { opacity: 1, duration: 0.6 }, "<");
-      return;
-    }
-    tl.addLabel("el", "+=0.2")
-      .to(el.el, { rotation: 6, transformOrigin: "75% 95%", duration: 0.15 }, "el")
-      .to(el.el, { xPercent: 75, duration: 0.5, ease: "power2.in" }, "el+=0.1")
-      .add(() => chispas([1150, 600], 12), "el+=0.25")
-      .set(el.casual, { display: "none" }, "el+=0.65")
-      .set(suyas, { opacity: 1 }, "el+=0.65")
-      .set(el.el, { rotation: -8 }, "el+=0.65")
-      // regreso con salto
-      .to(el.el, { xPercent: 0, duration: 0.6, ease: "power2.out" }, "el+=0.9")
-      .to(el.el, { y: -60, duration: 0.3, ease: "power2.out" }, "el+=0.9")
-      .to(el.el, { y: 0, rotation: 0, duration: 0.35, ease: "bounce.out" }, "el+=1.2")
-      .add(() => chispas([1000, 1000], 30), "el+=1.45");
+    const suyas = el.prendas.filter((p) => !p.fija && !/borla/.test(p.pieza.id))
+      .sort((a, b) => b.pieza.caja[3] - a.pieza.caja[3]);
+    const [ox, oy] = pct(CENTRO_EL);
+    tl.addLabel("el", "+=0.3")
+      .to(".pareja", { scale: 1.45, transformOrigin: `${ox}% ${oy}%`, duration: 0.7, ease: "power2.inOut" }, "el")
+      .to(".transfo", { opacity: 1, duration: 0.6 }, "el")
+      // se agacha, tiembla y aparece el aura
+      .to(el.el, { y: 14, duration: 0.25, ease: "power2.in" }, "el+=0.5")
+      .fromTo(".pareja", { x: -4 }, { x: 4, duration: 0.05, repeat: 25, yoyo: true, ease: "none" }, "el+=0.6")
+      .fromTo(el.aura, { opacity: 0, scale: 0.4, transformOrigin: `${ox}% 95%` },
+        { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, "el+=0.6")
+      .fromTo(".capa-aura .llama", { scaleY: 0.92, transformOrigin: "50% 100%" },
+        { scaleY: 1.06, duration: 0.12, repeat: 18, yoyo: true, ease: "sine.inOut" }, "el+=0.6")
+      .fromTo(el.dorado, { opacity: 0 }, { opacity: 0.92, duration: 0.3 }, "el+=0.8")
+      .fromTo(el.pelo, { opacity: 0, scaleY: 0.3, transformOrigin: `${pct([960, 150])[0]}% ${pct([960, 150])[1]}%` },
+        { opacity: 1, scaleY: 1, duration: 0.35, ease: "back.out(3)" }, "el+=1.0")
+      .fromTo(".rayo", { opacity: 0 }, { opacity: 1, duration: 0.05, repeat: 7, yoyo: true, stagger: 0.12 }, "el+=0.9")
+      .add(() => chispas([1000, 1000], 30), "el+=1.0")
+      .to(el.el, { y: 0, duration: 0.3, ease: "back.out(3)" }, "el+=1.4")
+      // explosión de energía: se va lo casual y aparece el traje, prenda por prenda
+      .fromTo(".destello", { opacity: 0.9 }, { opacity: 0, duration: 0.5, immediateRender: false }, "el+=1.8")
+      .set(el.casual, { display: "none" }, "el+=1.8")
+      .to(el.dorado, { opacity: 0, duration: 0.6 }, "el+=1.85");
+    suyas.forEach((st, i) => {
+      tl.fromTo(st.capa, { opacity: 0, scale: 1.25, transformOrigin: st.origen },
+        { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)", immediateRender: false }, `el+=${1.85 + i * 0.16}`)
+        .add(() => chispas(centro(st), 8), "<");
+    });
+    // el chullo cubre el cabello dorado; el aura se apaga
+    tl.to(el.pelo, { opacity: 0, duration: 0.3 }, `el+=${1.9 + suyas.length * 0.16}`)
+      .to(el.aura, { opacity: 0, scale: 1.3, duration: 0.6 }, "<")
+      .add(() => chispas(CENTRO_EL, 36), "<")
+      .to(".pareja", { scale: 1, x: 0, duration: 0.8, ease: "power2.inOut" }, "+=0.2")
+      .to(".transfo", { opacity: 0, duration: 0.8 }, "<");
   }
 
   function entradaInvitacion() {
