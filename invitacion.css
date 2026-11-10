@@ -337,3 +337,8 @@ body.cerrado .invitacion { visibility: hidden; }
 .sobre::after { content: ""; position: absolute; left: -26px; top: 70px; width: 130px; height: 100px; rotate: -16deg;
   background: url("img/bombo.svg") no-repeat center / contain; }
 .sello { box-shadow: 0 10px 24px rgba(247, 37, 133, .25), 0 0 0 4px var(--fucsia), 0 0 0 9px #fff, 0 0 0 12px var(--amarillo); }
+
+/* toque mientras carga: el sello late para mostrar que respondió */
+body.cargando .sello { animation: latido .8s ease-in-out infinite; }
+@keyframes latido { 50% { transform: translate(-50%, -50%) scale(1.1); } }
+.sello { touch-action: manipulation; }

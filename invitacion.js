@@ -512,7 +512,10 @@ const EVENTO = {
     btnMusica.classList.add("mudo");
     if (G) entradaInvitacion(); else colorear(semillaInicial, false);
   } else {
+    window.__abrir = abrirSobre;
     $("#sobre").addEventListener("click", abrirSobre);
+    // si tocaron el sello mientras cargaba, se abre ya
+    if (window.__tocado) { document.body.classList.remove("cargando"); abrirSobre(); }
     if (G) {
       G.from(".sobre-cuerpo", { y: 80, opacity: 0, rotation: -4, duration: 0.8, ease: "back.out(1.5)" });
       G.to(".sello", { scale: 1.08, duration: 0.8, yoyo: true, repeat: -1, ease: "sine.inOut" });
