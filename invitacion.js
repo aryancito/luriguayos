@@ -99,6 +99,25 @@ const EVENTO = {
     }
   }
 
+  /* ---------- contador de visitas (servicio gratuito Abacus) ----------
+   * Cada navegador suma una sola vez; las pruebas locales no cuentan. */
+  function contarVisita() {
+    const base = "https://abacus.jasoncameron.dev";
+    const clave = "aryancito-luriguayos/invitacion";
+    if (!/github\.io$/.test(location.hostname)) return;
+    let visto = false;
+    try { visto = localStorage.getItem("luriguayos-visto") === "1"; } catch {}
+    fetch(`${base}/${visto ? "get" : "hit"}/${clave}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (typeof d.value !== "number") return;
+        try { localStorage.setItem("luriguayos-visto", "1"); } catch {}
+        $("#visitas-n").textContent = d.value.toLocaleString("es-PE");
+        $("#visitas").hidden = false;
+      })
+      .catch(() => {});
+  }
+
   /* ---------- cuenta regresiva ---------- */
   function cuentaRegresiva() {
     if (!fechaValida || fecha < new Date()) return;
@@ -760,6 +779,7 @@ const EVENTO = {
   const semillaInicial = Math.floor(Math.random() * 1e6);
 
   rellenar();
+  contarVisita();
 
   // foto real del arco: se funde sobre el vectorial cuando ya está descargada
   // y cuando terminó la entrada del arco (antes no, para no tapar la animación)

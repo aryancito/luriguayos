@@ -439,3 +439,8 @@ body.listo .sobre-cuerpo { animation: entra .7s cubic-bezier(.2, 1.4, .4, 1) bot
 .capa-pelo-ssj { filter: drop-shadow(0 0 10px #ffd23f); }
 .capa-rayos { opacity: 1; filter: drop-shadow(0 0 4px #4cc9f0); }
 .rayo { opacity: 0; }
+
+/* contador de visitas: discreto */
+.visitas { margin: -14px 0 18px; font-size: 11.5px; color: #a3a0ab; letter-spacing: .04em; }
+.visitas[hidden] { display: none; }
+.visitas b { font-weight: 700; color: #8a8696; }
