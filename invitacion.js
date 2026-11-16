@@ -571,9 +571,9 @@ const EVENTO = {
           }
           if (pts.length < 2) continue;
           const d = aD(pts);
-          html += `<path d="${d}" fill="none" stroke="#0b8a3e" stroke-opacity=".55" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>`
-            + `<path d="${d}" fill="none" stroke="#2bff7a" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/>`
-            + `<path d="${d}" fill="none" stroke="#f2fff6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>`;
+          html += `<path d="${d}" fill="none" stroke="#056b30" stroke-opacity=".6" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>`
+            + `<path d="${d}" fill="none" stroke="#2f9e5c" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/>`
+            + `<path d="${d}" fill="none" stroke="#d9f5e3" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>`;
         }
       });
       capa.innerHTML = Math.random() < 0.15 ? "" : html;
@@ -611,7 +611,7 @@ const EVENTO = {
       $$(".f-trazo", ef).forEach((p) => {
         const c = p.cloneNode();
         c.removeAttribute("class");
-        Object.entries({ stroke: "#2bff7a", "stroke-width": 7, fill: "none", "stroke-dasharray": 1, "stroke-dashoffset": 1 })
+        Object.entries({ stroke: "#0a8a40", "stroke-width": 8, fill: "none", "stroke-dasharray": 1, "stroke-dashoffset": 1 })
           .forEach(([k, v]) => c.setAttribute(k, v));
         fuego.appendChild(c);
       });
