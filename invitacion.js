@@ -611,7 +611,7 @@ const EVENTO = {
       $$(".f-trazo", ef).forEach((p) => {
         const c = p.cloneNode();
         c.removeAttribute("class");
-        Object.entries({ stroke: "#2bff7a", "stroke-width": 9, fill: "none", "stroke-dasharray": 1, "stroke-dashoffset": 1 })
+        Object.entries({ stroke: "#2bff7a", "stroke-width": 7, fill: "none", "stroke-dasharray": 1, "stroke-dashoffset": 1 })
           .forEach(([k, v]) => c.setAttribute(k, v));
         fuego.appendChild(c);
       });
