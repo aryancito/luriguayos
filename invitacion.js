@@ -569,7 +569,11 @@ const EVENTO = {
           // el nombre, letra por letra
           .from(arriba, { y: -30, opacity: 0, scale: 2, transformOrigin: "50% 50%", duration: 0.32, ease: "back.out(2.5)", stagger: 0.05 }, "-=0.4")
           // la F gótica aparece en relieve
-          .from(".la-f", { scale: 0.3, opacity: 0, rotation: -25, transformOrigin: "50% 60%", duration: 0.7, ease: "back.out(1.6)" })
+          // la ƒ se dibuja con un trazo (tallo y luego travesaño)
+          .fromTo(".la-f .f-trazo", { attr: { "stroke-dasharray": 1, "stroke-dashoffset": 1 } },
+            { attr: { "stroke-dashoffset": 0 }, duration: 0.6, ease: "power2.inOut", stagger: 0.35 })
+          .from(".la-f path:not(.f-trazo)", { opacity: 0, duration: 0.5, stagger: 0.35 }, "<")
+          .from(".la-f circle", { scale: 0, transformOrigin: "50% 50%", duration: 0.3, ease: "back.out(3)", stagger: 0.1 }, "-=0.2")
           // los danzantes llegan delante de la F
           .from(".la-pareja", { scale: 0.2, opacity: 0, y: 40, svgOrigin: "300 300", duration: 0.8, ease: "elastic.out(1, 0.55)" }, "-=0.2")
           .from(juli, { y: -80, opacity: 0, rotation: -20, transformOrigin: "50% 100%", duration: 0.5, ease: "bounce.out", stagger: 0.14 })
