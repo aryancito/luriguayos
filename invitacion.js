@@ -765,12 +765,10 @@ const EVENTO = {
   function entradaInvitacion() {
     iniciarCarnaval();
     const tl = G.timeline();
-    const pasos = ".kicker, .titulo, .subtitulo, .letra, .lema, .inst, .aguayo, .cab-logo, .te-invita, .banderines-top, .confeti";
     // ETAPA 1: la escena (arco + danzantes) ocupa toda la pantalla
     document.body.classList.add("escena-completa");
     scrollTo(0, 0);
-    tl.set(pasos, { opacity: 0 })
-      .from("#img-fondo", { opacity: 0, scale: 1.06, duration: 0.9, ease: "power1.out" })
+    tl.from("#img-fondo", { opacity: 0, scale: 1.06, duration: 0.9, ease: "power1.out" })
       .from("#img-arco, #img-arco-real", { y: 80, scale: 0.94, transformOrigin: "50% 70%", duration: 1.2, ease: "power3.out" }, "-=0.4")
       .from("#img-arco", { opacity: 0, duration: 1.2, ease: "power3.out" }, "<")
       .add(() => window.__arcoEntrada(), "-=0.2")
@@ -807,19 +805,12 @@ const EVENTO = {
       document.body.classList.remove("escena-completa");
       if (estado) Flip.from(estado, { duration: 1, ease: "power3.inOut" });
     });
-    tl.set(pasos, { opacity: 1 }, "+=0.7")
-      .from(".aguayo", { scaleX: 0, transformOrigin: "left center", duration: 0.6, ease: "power2.out" })
-      .from(".cab-logo", { scale: 0, rotation: -120, duration: 0.7, ease: "back.out(1.8)" }, "<")
-      .from(".banderines-top", { y: -40, duration: 0.5, ease: "back.out(2)" }, "<")
-      .from(".kicker", { y: 20, opacity: 0, duration: 0.4 }, "-=0.3")
-      .from(".titulo", { y: 40, opacity: 0, scale: 0.9, duration: 0.6, ease: "back.out(1.7)" }, "-=0.2")
-      .from(".subtitulo", { scale: 0, duration: 0.45, ease: "back.out(2.5)" }, "-=0.3")
-      .from(".letra", { y: -60, opacity: 0, scale: 0.3, rotation: () => G.utils.random(-40, 40),
-        duration: 0.6, ease: "back.out(2.2)", stagger: 0.06 }, "-=0.2")
-      .from(".te-invita", { opacity: 0, y: 10, duration: 0.4 }, "<")
-      .from(".lema", { opacity: 0, y: 10, duration: 0.4 }, "-=0.2")
-      .from(".inst", { scale: 0, opacity: 0, rotation: () => G.utils.random(-30, 30), duration: 0.7,
-        ease: "back.out(1.8)", stagger: 0.08 }, "-=0.6")
+    // el encabezado ya está detrás de la escena (nunca queda en blanco); al
+    // descubrirse saluda: la insignia gira y las letras de "Recepción" saltan
+    tl.addLabel("inv", "<")
+      .fromTo(".cab-logo", { rotation: -25 }, { rotation: 0, duration: 0.9, ease: "elastic.out(1, 0.4)" }, "inv+=0.3")
+      .to(".letra", { y: -14, duration: 0.18, ease: "power2.out", yoyo: true, repeat: 1, stagger: 0.04 }, "inv+=0.4")
+      .from(".inst", { scale: 0.6, rotation: () => G.utils.random(-20, 20), duration: 0.6, ease: "back.out(2)", stagger: 0.04 }, "inv+=0.3")
       .from(".pareja-pista", { opacity: 0, y: 10, duration: 0.4 });
     tl.add(() => {
       G.to(".pareja", { y: -6, duration: 1.6, yoyo: true, repeat: -1, ease: "sine.inOut" });
