@@ -7,10 +7,10 @@
 <title>Invitación · Recepción Luriguayos</title>
 <meta name="description" content="La Asociación de Luriguayos Revelación Fanáticos Juli te invita a su recepción.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cinzel:wght@700&family=Lilita+One&family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="icono.png?v=4">
 <link rel="apple-touch-icon" href="logo-marca.png?v=4">
-<link rel="stylesheet" href="invitacion.css?v=54">
+<link rel="stylesheet" href="invitacion.css?v=56">
 </head>
 <body class="cerrado">
 
@@ -79,7 +79,27 @@
       <b class="sobre-de" data-evento="organiza"></b>
     </div>
     <button class="sello" id="btn-abrir" aria-label="Abrir la invitación">
-      <img class="sello-logo" src="logo-marca.png?v=4" alt="" width="150" height="150">
+      <svg class="logo-armado" id="logo-armado" viewBox="0 0 600 600" aria-hidden="true">
+        <defs>
+          <path id="la-arr" d="M72 300 A228 228 0 0 1 528 300"/>
+          <path id="la-aba" d="M42 300 A258 258 0 0 0 558 300"/>
+          <linearGradient id="la-luz" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/>
+            <stop offset=".5" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+          <clipPath id="la-circulo"><circle cx="300" cy="300" r="292"/></clipPath>
+        </defs>
+        <circle class="la-fondo" cx="300" cy="300" r="292" fill="#0b8a3e"/>
+        <circle class="la-punteado" cx="300" cy="300" r="280" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="7 6" opacity=".8"/>
+        <circle class="la-blanco" cx="300" cy="300" r="200" fill="#fff"/>
+        <circle class="la-trazo" cx="300" cy="300" r="200" fill="none" stroke="#d62828" stroke-width="6" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" transform="rotate(-90 300 300)"/>
+        <circle class="la-trazo" cx="300" cy="300" r="190" fill="none" stroke="#0b8a3e" stroke-width="2" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" transform="rotate(-90 300 300)"/>
+        <text class="la-partir" font-family="UnifrakturMaguntia, serif" font-size="46" fill="#fff"><textPath href="#la-arr" startOffset="50%" text-anchor="middle">Revelación Fanáticos</textPath></text>
+        <text class="la-partir" font-family="Cinzel, serif" font-weight="700" font-size="22" letter-spacing="6" fill="#fff"><textPath href="#la-aba" startOffset="50%" text-anchor="middle">ASOCIACIÓN DE LURIGUAYOS</textPath></text>
+        <g class="la-rombo" fill="#fff"><path d="M56 300 l7 -14 7 14 -7 14z"/><path d="M530 300 l7 -14 7 14 -7 14z"/></g>
+        <image class="la-pareja" href="img/logo-pareja.webp" x="160" y="124" width="280" height="252"/>
+        <text class="la-partir la-juli" x="300" y="440" text-anchor="middle" font-family="UnifrakturMaguntia, serif" font-size="64" fill="#0b8a3e">Juli</text>
+        <rect class="la-raya" x="246" y="452" width="108" height="5" rx="2.5" fill="#d62828"/>
+        <g clip-path="url(#la-circulo)"><rect class="la-brillo" x="-220" y="0" width="160" height="600" fill="url(#la-luz)" transform="skewX(-18)" opacity="0"/></g>
+      </svg>
     </button>
     <span class="sobre-pista">Toca el sello para abrir</span>
   </div>
@@ -143,6 +163,9 @@
       </div>
       <p class="cambio" id="cambio" aria-hidden="true">✨ ¡Modo luriguayo! ✨</p>
     </figure>
+    <button class="btn-ver" id="btn-ver" hidden>Ver la invitación
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
   </section>
   <p class="pareja-pista">Toca la pareja para cambiar sus colores</p>
 
@@ -210,10 +233,11 @@
 
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
 <script defer src="data/escena.js?v=22"></script>
 <script defer src="motor.js?v=4"></script>
 <script defer src="silueta.js?v=1"></script>
 <script defer src="carnaval.js?v=3"></script>
-<script defer src="invitacion.js?v=54"></script>
+<script defer src="invitacion.js?v=56"></script>
 </body>
 </html>

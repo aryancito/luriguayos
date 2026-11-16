@@ -457,3 +457,23 @@ body.listo .sobre-cuerpo { animation: entra .7s cubic-bezier(.2, 1.4, .4, 1) bot
 .sello { width: 150px; height: 150px; top: 44%; background: transparent;
   box-shadow: 0 12px 26px rgba(6, 98, 43, .35); border-radius: 50%; }
 .sello-logo { width: 150px; height: 150px; }
+
+/* sobre: insignia grande que se arma */
+.sello { width: 236px; height: 236px; top: 41%; background: transparent; box-shadow: none; border-radius: 50%; }
+.logo-armado { display: block; width: 100%; height: 100%; overflow: visible;
+  filter: drop-shadow(0 12px 22px rgba(6, 98, 43, .35)); }
+.sobre-texto { margin-bottom: 16px; }
+.sobre-de { font-size: 18px; }
+
+/* ETAPA 1: arco y danzantes a pantalla completa */
+body.escena-completa { overflow: hidden; }
+body.escena-completa .invitacion > .hero { position: fixed; inset: 0; z-index: 11; margin: 0; width: 100vw; height: 100svh;
+  aspect-ratio: auto; border-radius: 0; box-shadow: none; }
+body.escena-completa .pareja { left: 1%; right: 1%; bottom: 3%; }
+body.escena-completa .cambio { top: 30%; }
+.btn-ver { position: absolute; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom)); translate: -50% 0; z-index: 5;
+  display: flex; align-items: center; gap: 6px; padding: 12px 20px; border: 0; border-radius: 999px; cursor: pointer;
+  font: 800 15px "Baloo 2", sans-serif; color: #fff; background: #0b8a3e; box-shadow: 0 10px 24px rgba(6, 98, 43, .4); }
+.btn-ver[hidden] { display: none; }
+.btn-ver svg { animation: rebote-v 1.4s ease-in-out infinite; }
+@keyframes rebote-v { 50% { transform: translateY(4px); } }

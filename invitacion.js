@@ -526,6 +526,61 @@ const EVENTO = {
       .add(() => { mostrar(); entradaInvitacion(); }, "-=0.4");
   }
 
+  /* ---------- sobre: la insignia se arma pieza por pieza ---------- */
+  // cada letra de los textos pasa a ser su propio <text> (para animarlas una a una)
+  function partirLetras(texto) {
+    const letras = [];
+    const n = texto.getNumberOfChars(), cadena = texto.textContent;
+    const fuente = texto.getAttribute("font-family"), tam = texto.getAttribute("font-size");
+    for (let i = 0; i < n; i++) {
+      if (!cadena[i].trim()) continue;
+      const p = texto.getStartPositionOfChar(i), r = texto.getRotationOfChar(i);
+      const t = document.createElementNS(NS, "text");
+      t.setAttribute("x", p.x.toFixed(1));
+      t.setAttribute("y", p.y.toFixed(1));
+      t.setAttribute("transform", `rotate(${r.toFixed(1)} ${p.x.toFixed(1)} ${p.y.toFixed(1)})`);
+      ["font-family", "font-size", "font-weight", "fill"].forEach((a) => texto.getAttribute(a) && t.setAttribute(a, texto.getAttribute(a)));
+      t.setAttribute("class", "la-letra" + (texto.classList.contains("la-juli") ? " la-letra-juli" : ""));
+      t.textContent = cadena[i];
+      texto.after(t);
+      letras.push(t);
+    }
+    texto.remove();
+    return letras;
+  }
+
+  function armarLogo() {
+    const logo = $("#logo-armado");
+    if (!logo || !G) return;
+    const fuentes = Promise.all(["46px UnifrakturMaguntia", "700 22px Cinzel"].map((f) => document.fonts.load(f)));
+    const espera = new Promise((r) => setTimeout(r, 2500));
+    Promise.race([fuentes, espera]).then(() => {
+      const grupos = $$(".la-partir", logo).map(partirLetras);
+      const [arriba, abajo, juli] = grupos;
+      const listo = () => document.body.classList.contains("listo") || !$("#cargador");
+      const empezar = () => {
+        if (!listo()) return setTimeout(empezar, 120);
+        G.timeline({ onComplete: () => {
+          G.to(".sello", { scale: 1.04, duration: 0.9, yoyo: true, repeat: -1, ease: "sine.inOut" });
+          G.to(".la-brillo", { attr: { x: 760 }, opacity: 1, duration: 1.4, repeat: -1, repeatDelay: 2.2, ease: "power2.inOut" });
+        } })
+          .from(".la-fondo", { scale: 0, svgOrigin: "300 300", duration: 0.6, ease: "back.out(1.8)" })
+          .from(".la-punteado", { rotation: -180, opacity: 0, svgOrigin: "300 300", duration: 0.8, ease: "power2.out" }, "-=0.3")
+          .from(".la-blanco", { scale: 0, svgOrigin: "300 300", duration: 0.5, ease: "back.out(2)" }, "-=0.5")
+          .to(".la-trazo", { attr: { "stroke-dashoffset": 0 }, duration: 0.7, ease: "power2.inOut", stagger: 0.15 }, "-=0.2")
+          .from(arriba, { y: -40, opacity: 0, scale: 2, transformOrigin: "50% 50%", duration: 0.35, ease: "back.out(2.5)", stagger: 0.06 }, "-=0.3")
+          .from(".la-rombo path", { scale: 0, transformOrigin: "50% 50%", duration: 0.35, ease: "back.out(3)", stagger: 0.1 }, "-=0.1")
+          .from(".la-pareja", { scale: 0.2, opacity: 0, y: 40, svgOrigin: "300 300", duration: 0.8, ease: "elastic.out(1, 0.55)" })
+          .from(abajo, { opacity: 0, scale: 0, transformOrigin: "50% 50%", duration: 0.25, ease: "back.out(3)", stagger: 0.04 }, "-=0.3")
+          .from(juli, { y: -80, opacity: 0, rotation: -20, transformOrigin: "50% 100%", duration: 0.5, ease: "bounce.out", stagger: 0.14 })
+          .from(".la-raya", { scaleX: 0, transformOrigin: "50% 50%", duration: 0.4, ease: "power2.out" }, "-=0.1")
+          .to(".la-brillo", { attr: { x: 760 }, opacity: 1, duration: 1.1, ease: "power2.inOut" })
+          .from(".sobre-texto > *, .sobre-pista", { opacity: 0, y: 14, duration: 0.4, stagger: 0.12 }, "-=0.6");
+      };
+      empezar();
+    });
+  }
+
   /* ---------- cambio de vestuario ---------- */
   const CENTRO_ELLA = [490, 560];
   const CENTRO_EL = [1000, 560];
@@ -710,28 +765,21 @@ const EVENTO = {
   function entradaInvitacion() {
     iniciarCarnaval();
     const tl = G.timeline();
-    // 1) el escenario y el arco de Juli, que se levanta piedra a piedra
-    tl.from(".aguayo", { scaleX: 0, transformOrigin: "left center", duration: 0.6, ease: "power2.out" })
-      .from("#img-fondo", { opacity: 0, scale: 1.06, duration: 0.9, ease: "power1.out" }, "<")
-      // el arco se levanta desde la base
+    const pasos = ".kicker, .titulo, .subtitulo, .letra, .lema, .inst, .aguayo, .cab-logo, .te-invita, .banderines-top, .confeti";
+    // ETAPA 1: la escena (arco + danzantes) ocupa toda la pantalla
+    document.body.classList.add("escena-completa");
+    scrollTo(0, 0);
+    tl.set(pasos, { opacity: 0 })
+      .from("#img-fondo", { opacity: 0, scale: 1.06, duration: 0.9, ease: "power1.out" })
       .from("#img-arco, #img-arco-real", { y: 80, scale: 0.94, transformOrigin: "50% 70%", duration: 1.2, ease: "power3.out" }, "-=0.4")
       .from("#img-arco", { opacity: 0, duration: 1.2, ease: "power3.out" }, "<")
       .add(() => window.__arcoEntrada(), "-=0.2")
-      // 2) el título sobre el cielo
-      .from(".kicker", { y: 20, opacity: 0, duration: 0.4 }, "-=0.4")
-      .from(".titulo", { y: 40, opacity: 0, scale: 0.9, duration: 0.7, ease: "back.out(1.7)" }, "-=0.2")
-      .from(".subtitulo", { scale: 0, duration: 0.45, ease: "back.out(2.5)" }, "-=0.3")
-      .from(".letra", { y: -60, opacity: 0, scale: 0.3, rotation: () => G.utils.random(-40, 40),
-        duration: 0.6, ease: "back.out(2.2)", stagger: 0.06 }, "-=0.2")
-      .from(".lema", { opacity: 0, y: 10, duration: 0.4 }, "-=0.2")
-      .from(".inst", { scale: 0, opacity: 0, rotation: () => G.utils.random(-30, 30), duration: 0.7,
-        ease: "back.out(1.8)", stagger: 0.08 }, "-=0.6")
-      // 3) los danzantes llegan con ropa casual (el traje queda escondido)
+      // los danzantes llegan con ropa casual (el traje queda escondido)
       .set(prendas.filter((p) => !p.fija).map((p) => p.capa), { opacity: 0 }, 0)
       .from([...$$(".capa-sombra, .capa-cuerpo, .capa-casual"), ...prendas.filter((p) => p.fija).map((p) => p.capa)],
-        { opacity: 0, y: 40, duration: 0.7, ease: "power2.out" }, "-=0.2")
-      // 4) ¡Modo luriguayo!
-      .fromTo("#cambio", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2.5)" }, "+=0.6")
+        { opacity: 0, y: 40, duration: 0.7, ease: "power2.out" }, "-=0.3")
+      // ¡Modo luriguayo!
+      .fromTo("#cambio", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2.5)" }, "+=0.8")
       .add(() => window.Carnaval && Carnaval.lluvia(10), "-=0.2")
       .to("#cambio", { opacity: 0, y: -14, duration: 0.35 }, "+=0.6");
     transformarElla(tl);
@@ -740,7 +788,38 @@ const EVENTO = {
     vuelanRosas(tl);
     // ya tapada por el traje, la ropa casual se retira (menos que dibujar)
     tl.set(".capa-casual", { display: "none" });
-    tl.add(() => { colorear(semillaInicial); alternarColores(); }, "-=0.2")
+    tl.add(() => { colorear(semillaInicial); alternarColores(); }, "-=0.2");
+    // botón para pasar a la invitación (o pasa solo a los 4 s)
+    tl.add(() => {
+      const btn = $("#btn-ver");
+      btn.hidden = false;
+      G.fromTo(btn, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "back.out(2)" });
+      const seguir = () => { btn.removeEventListener("click", seguir); clearTimeout(reloj); tl.resume(); };
+      const reloj = setTimeout(seguir, 4000);
+      btn.addEventListener("click", seguir);
+    });
+    tl.addPause();
+    // ETAPA 2: la escena se encoge hasta su lugar y aparece la invitación
+    tl.add(() => {
+      $("#btn-ver").hidden = true;
+      const hero = $(".hero");
+      const estado = window.Flip ? Flip.getState(hero) : null;
+      document.body.classList.remove("escena-completa");
+      if (estado) Flip.from(estado, { duration: 1, ease: "power3.inOut" });
+    });
+    tl.set(pasos, { opacity: 1 }, "+=0.7")
+      .from(".aguayo", { scaleX: 0, transformOrigin: "left center", duration: 0.6, ease: "power2.out" })
+      .from(".cab-logo", { scale: 0, rotation: -120, duration: 0.7, ease: "back.out(1.8)" }, "<")
+      .from(".banderines-top", { y: -40, duration: 0.5, ease: "back.out(2)" }, "<")
+      .from(".kicker", { y: 20, opacity: 0, duration: 0.4 }, "-=0.3")
+      .from(".titulo", { y: 40, opacity: 0, scale: 0.9, duration: 0.6, ease: "back.out(1.7)" }, "-=0.2")
+      .from(".subtitulo", { scale: 0, duration: 0.45, ease: "back.out(2.5)" }, "-=0.3")
+      .from(".letra", { y: -60, opacity: 0, scale: 0.3, rotation: () => G.utils.random(-40, 40),
+        duration: 0.6, ease: "back.out(2.2)", stagger: 0.06 }, "-=0.2")
+      .from(".te-invita", { opacity: 0, y: 10, duration: 0.4 }, "<")
+      .from(".lema", { opacity: 0, y: 10, duration: 0.4 }, "-=0.2")
+      .from(".inst", { scale: 0, opacity: 0, rotation: () => G.utils.random(-30, 30), duration: 0.7,
+        ease: "back.out(1.8)", stagger: 0.08 }, "-=0.6")
       .from(".pareja-pista", { opacity: 0, y: 10, duration: 0.4 });
     tl.add(() => {
       G.to(".pareja", { y: -6, duration: 1.6, yoyo: true, repeat: -1, ease: "sine.inOut" });
@@ -750,7 +829,6 @@ const EVENTO = {
       G.to(".deco-bombo, .deco-tinya", { scale: 1.06, duration: 0.23, yoyo: true, repeat: -1, ease: "power1.inOut",
         repeatDelay: 0.24 });
       G.to(".letra", { y: -4, duration: 0.5, yoyo: true, repeat: -1, ease: "sine.inOut", stagger: { each: 0.08, repeat: -1, yoyo: true } });
-
     });
     revelarAlBajar();
   }
@@ -818,10 +896,10 @@ const EVENTO = {
   } else {
     window.__abrir = abrirSobre;
     $("#sobre").addEventListener("click", abrirSobre);
+    armarLogo();
     // si tocaron el sello mientras cargaba, se abre ya
     if (window.__tocado) { document.body.classList.remove("cargando"); abrirSobre(); }
     if (G) {
-      G.to(".sello", { scale: 1.08, duration: 0.8, yoyo: true, repeat: -1, ease: "sine.inOut" });
     }
   }
 })();
