@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" role="img"><title>Revelación Fanáticos Juli · horizontal</title><style>@import url("https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&amp;family=Cinzel:wght@700&amp;display=swap");.g{font-family:"UnifrakturMaguntia","Old English Text MT",serif}.c{font-family:"Cinzel",Georgia,serif;font-weight:700}</style>
+<circle cx="150" cy="150" r="128" fill="#0b8a3e"/>
+<circle cx="150" cy="150" r="116" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="6 5" opacity=".8"/>
+<text class="g" x="150" y="214" text-anchor="middle" font-size="190" fill="#fff">F</text>
+<text class="c" x="312" y="92" font-size="20" letter-spacing="5" fill="#06622b">ASOCIACIÓN DE LURIGUAYOS</text>
+<text class="g" x="306" y="168" font-size="74" fill="#0b8a3e">Revelación</text>
+<text class="g" x="306" y="242" font-size="74" fill="#0b8a3e">Fanáticos <tspan fill="#1b1b1b">Juli</tspan></text>
+<rect x="312" y="262" width="360" height="5" rx="2.5" fill="#d62828"/>
+</svg>
