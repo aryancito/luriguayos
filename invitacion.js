@@ -549,6 +549,54 @@ const EVENTO = {
     return letras;
   }
 
+  // la propia ƒ se electrifica: arcos verdes que corren sobre su trazo
+  function rayosLogo(logo, segundos) {
+    const capa = $(".la-rayos", logo);
+    const trazos = $$(".la-f .f-trazo", logo);
+    const ef = $(".la-f", logo);
+    capa.setAttribute("transform", ef.getAttribute("transform") || "");
+    const fin = performance.now() + segundos * 1000;
+    const tic = () => {
+      if (performance.now() > fin) { capa.innerHTML = ""; return; }
+      let html = "";
+      trazos.forEach((p) => {
+        const L = p.getTotalLength();
+        for (let k = 0; k < 3; k++) {
+          // un tramo al azar de la letra, con un arco eléctrico que lo sigue
+          const a = Math.random() * L * 0.8, b = Math.min(L, a + L * (0.15 + Math.random() * 0.35));
+          const pts = [];
+          for (let s = a; s <= b; s += 9) {
+            const q = p.getPointAtLength(s);
+            pts.push([q.x + (Math.random() - 0.5) * 22, q.y + (Math.random() - 0.5) * 22]);
+          }
+          if (pts.length < 2) continue;
+          const d = aD(pts);
+          html += `<path d="${d}" fill="none" stroke="#0b8a3e" stroke-opacity=".55" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>`
+            + `<path d="${d}" fill="none" stroke="#2bff7a" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/>`
+            + `<path d="${d}" fill="none" stroke="#f2fff6" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>`;
+        }
+      });
+      capa.innerHTML = Math.random() < 0.15 ? "" : html;
+      setTimeout(tic, 45 + Math.random() * 55);
+    };
+    tic();
+  }
+
+  // la llama verde ondula: se cambia la semilla del ruido varias veces por segundo
+  function llamaLogo(segundos) {
+    const ruido = $("#la-ruido");
+    if (!ruido) return;
+    const fin = performance.now() + segundos * 1000;
+    let s = 1;
+    const tic = () => {
+      if (performance.now() > fin) return;
+      ruido.setAttribute("seed", ++s);
+      ruido.setAttribute("baseFrequency", `${0.035 + Math.random() * 0.015} ${0.09 + Math.random() * 0.04}`);
+      setTimeout(tic, 70);
+    };
+    tic();
+  }
+
   function armarLogo() {
     const logo = $("#logo-armado");
     if (!logo || !G) return;
@@ -556,6 +604,19 @@ const EVENTO = {
     const espera = new Promise((r) => setTimeout(r, 2500));
     Promise.race([fuentes, espera]).then(() => {
       const [arriba, juli] = $$(".la-partir", logo).map(partirLetras);
+      const ef = $(".la-f", logo);
+      const fuego = document.createElementNS(NS, "g");
+      fuego.setAttribute("class", "f-fuego");
+      fuego.setAttribute("filter", "url(#la-fuego)");
+      $$(".f-trazo", ef).forEach((p) => {
+        const c = p.cloneNode();
+        c.removeAttribute("class");
+        Object.entries({ stroke: "#2bff7a", "stroke-width": 26, "stroke-dasharray": 1, "stroke-dashoffset": 1 })
+          .forEach(([k, v]) => c.setAttribute(k, v));
+        fuego.appendChild(c);
+      });
+      ef.appendChild(fuego);
+      $$(":scope > path, :scope > circle", ef).forEach((n) => (n.style.opacity = 0));
       const listo = () => document.body.classList.contains("listo") || !$("#cargador");
       const empezar = () => {
         if (!listo()) return setTimeout(empezar, 120);
@@ -564,18 +625,20 @@ const EVENTO = {
           G.to(".la-brillo", { attr: { x: 760 }, opacity: 1, duration: 1.4, repeat: -1, repeatDelay: 2.2, ease: "power2.inOut" });
         } })
           .from(".la-fondo", { scale: 0, svgOrigin: "300 300", duration: 0.5, ease: "back.out(1.8)" })
-          // los anillos verdes se dibujan
-          .to(".la-trazo", { attr: { "stroke-dashoffset": 0 }, duration: 0.8, ease: "power2.inOut", stagger: 0.2 }, "-=0.1")
-          // el nombre, letra por letra
-          .from(arriba, { y: -30, opacity: 0, scale: 2, transformOrigin: "50% 50%", duration: 0.32, ease: "back.out(2.5)", stagger: 0.05 }, "-=0.4")
-          // la F gótica aparece en relieve
-          // la ƒ se dibuja con un trazo (tallo y luego travesaño)
-          .fromTo(".la-f .f-trazo", { attr: { "stroke-dasharray": 1, "stroke-dashoffset": 1 } },
-            { attr: { "stroke-dashoffset": 0 }, duration: 0.6, ease: "power2.inOut", stagger: 0.35 })
-          .from(".la-f path:not(.f-trazo)", { opacity: 0, duration: 0.5, stagger: 0.35 }, "<")
-          .from(".la-f circle", { scale: 0, transformOrigin: "50% 50%", duration: 0.3, ease: "back.out(3)", stagger: 0.1 }, "-=0.2")
-          // los danzantes llegan delante de la F
-          .from(".la-pareja", { scale: 0.2, opacity: 0, y: 40, svgOrigin: "300 300", duration: 0.8, ease: "elastic.out(1, 0.55)" }, "-=0.2")
+          // 1) la ƒ se escribe en fuego verde, electrificada
+          .add(() => { llamaLogo(2.4); rayosLogo(logo, 2.1); }, "+=0.1")
+          .fromTo(".f-fuego path", { attr: { "stroke-dashoffset": 1 } },
+            { attr: { "stroke-dashoffset": 0 }, duration: 0.7, ease: "power2.inOut", stagger: 0.35 }, "<")
+          .fromTo(".f-fuego", { scale: 1 }, { scale: 1.04, transformOrigin: "50% 50%", duration: 0.08, yoyo: true, repeat: 9 }, "<0.4")
+          // 2) se apaga: la misma letra se enfría y queda blanca, en relieve
+          .to(".la-f > path, .la-f > circle", { opacity: 1, duration: 0.6 }, "+=0.7")
+          .to(".f-fuego", { opacity: 0, duration: 0.6 }, "<")
+          .from(".la-f > circle", { scale: 0, transformOrigin: "50% 50%", duration: 0.3, ease: "back.out(3)", stagger: 0.1 }, "<")
+          // 4) entran los danzantes delante de ella
+          .from(".la-pareja", { scale: 0.2, opacity: 0, y: 40, svgOrigin: "300 300", duration: 0.8, ease: "elastic.out(1, 0.55)" }, "+=0.1")
+          // 5) los anillos, el nombre letra por letra y "Juli"
+          .to(".la-trazo", { attr: { "stroke-dashoffset": 0 }, duration: 0.8, ease: "power2.inOut", stagger: 0.2 }, "-=0.3")
+          .from(arriba, { y: -30, opacity: 0, scale: 2, transformOrigin: "50% 50%", duration: 0.32, ease: "back.out(2.5)", stagger: 0.045 }, "-=0.5")
           .from(juli, { y: -80, opacity: 0, rotation: -20, transformOrigin: "50% 100%", duration: 0.5, ease: "bounce.out", stagger: 0.14 })
           .to(".la-brillo", { attr: { x: 760 }, opacity: 1, duration: 1.1, ease: "power2.inOut" })
           .from(".sobre-texto > *, .sobre-pista", { opacity: 0, y: 14, duration: 0.4, stagger: 0.12 }, "-=0.6");

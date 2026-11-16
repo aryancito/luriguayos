@@ -85,6 +85,14 @@
           <linearGradient id="la-luz" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/>
             <stop offset=".5" stop-color="#fff" stop-opacity=".8"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
           <clipPath id="la-circulo"><circle cx="300" cy="300" r="298"/></clipPath>
+          <filter id="la-fuego" x="-40%" y="-40%" width="180%" height="180%">
+            <feTurbulence id="la-ruido" type="fractalNoise" baseFrequency="0.04 0.11" numOctaves="2" seed="1" result="ruido"/>
+            <feDisplacementMap in="SourceGraphic" in2="ruido" scale="16" xChannelSelector="R" yChannelSelector="G" result="llama"/>
+            <feGaussianBlur in="llama" stdDeviation="6" result="halo"/>
+            <feMerge><feMergeNode in="halo"/><feMergeNode in="halo"/><feMergeNode in="llama"/></feMerge>
+          </filter>
+          <filter id="la-chispa" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
           <filter id="la-relieve" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity=".18"/></filter>
         </defs>
         <circle class="la-fondo" cx="300" cy="300" r="298" fill="#fff"/>
@@ -95,6 +103,7 @@
         <g class="la-f" transform="translate(306 306) scale(.88) translate(-306 -306)" filter="url(#la-relieve)"><path d="M214 400 C210 438 268 446 284 398 L318 198 C330 140 384 128 402 168" fill="none" stroke="#a9a9a9" stroke-width="30" stroke-linecap="round"/><path class="f-trazo" d="M214 400 C210 438 268 446 284 398 L318 198 C330 140 384 128 402 168" fill="none" stroke="#fdfdfd" stroke-width="22" stroke-linecap="round" pathLength="1"/><path d="M258 292 C290 287 330 287 362 292" fill="none" stroke="#a9a9a9" stroke-width="30" stroke-linecap="round"/><path class="f-trazo" d="M258 292 C290 287 330 287 362 292" fill="none" stroke="#fdfdfd" stroke-width="22" stroke-linecap="round" pathLength="1"/><circle cx="402" cy="170" r="13" fill="#fdfdfd" stroke="#a9a9a9" stroke-width="4"/><circle cx="214" cy="398" r="13" fill="#fdfdfd" stroke="#a9a9a9" stroke-width="4"/></g>
         <image class="la-pareja" href="img/logo-pareja.webp" x="140.9" y="152.8" width="318.2" height="286.4"/>
         <text class="la-partir la-juli" x="300" y="542" text-anchor="middle" font-family="UnifrakturMaguntia, serif" font-size="76" fill="#0b8a3e">Juli</text>
+        <g class="la-rayos" filter="url(#la-chispa)"></g>
         <g clip-path="url(#la-circulo)"><rect class="la-brillo" x="-220" y="0" width="160" height="600" fill="url(#la-luz)" transform="skewX(-18)" opacity="0"/></g>
       </svg>
     </button>
@@ -235,6 +244,6 @@
 <script defer src="motor.js?v=4"></script>
 <script defer src="silueta.js?v=1"></script>
 <script defer src="carnaval.js?v=3"></script>
-<script defer src="invitacion.js?v=61"></script>
+<script defer src="invitacion.js?v=63"></script>
 </body>
 </html>
