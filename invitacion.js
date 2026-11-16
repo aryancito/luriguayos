@@ -600,7 +600,7 @@ const EVENTO = {
   function armarLogo() {
     const logo = $("#logo-armado");
     if (!logo || !G) return;
-    const fuentes = Promise.all(["46px UnifrakturMaguntia", "700 22px Cinzel"].map((f) => document.fonts.load(f)));
+    const fuentes = Promise.all(["700 44px UnifrakturCook", "700 22px Cinzel"].map((f) => document.fonts.load(f)));
     const espera = new Promise((r) => setTimeout(r, 2500));
     Promise.race([fuentes, espera]).then(() => {
       const [arriba, juli] = $$(".la-partir", logo).map(partirLetras);
