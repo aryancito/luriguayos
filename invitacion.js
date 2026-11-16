@@ -14,7 +14,7 @@ const EVENTO = {
   organiza: "Asociación de Luriguayos Revelación Fanáticos Juli",
   tipo: "Recepción",
   mensaje: "Será un honor compartir contigo una velada de música, danza y tradición. ¡Acompáñanos!",
-  fecha: "2026-11-23",
+  fecha: "2026-11-28",
   hora: "17:00",
   duracionHoras: 5,
   lugar: "Salón de Eventos Enmanuel",
@@ -555,8 +555,7 @@ const EVENTO = {
     const fuentes = Promise.all(["46px UnifrakturMaguntia", "700 22px Cinzel"].map((f) => document.fonts.load(f)));
     const espera = new Promise((r) => setTimeout(r, 2500));
     Promise.race([fuentes, espera]).then(() => {
-      const grupos = $$(".la-partir", logo).map(partirLetras);
-      const [arriba, abajo, juli] = grupos;
+      const [arriba, juli] = $$(".la-partir", logo).map(partirLetras);
       const listo = () => document.body.classList.contains("listo") || !$("#cargador");
       const empezar = () => {
         if (!listo()) return setTimeout(empezar, 120);
@@ -564,16 +563,16 @@ const EVENTO = {
           G.to(".sello", { scale: 1.04, duration: 0.9, yoyo: true, repeat: -1, ease: "sine.inOut" });
           G.to(".la-brillo", { attr: { x: 760 }, opacity: 1, duration: 1.4, repeat: -1, repeatDelay: 2.2, ease: "power2.inOut" });
         } })
-          .from(".la-fondo", { scale: 0, svgOrigin: "300 300", duration: 0.6, ease: "back.out(1.8)" })
-          .from(".la-punteado", { rotation: -180, opacity: 0, svgOrigin: "300 300", duration: 0.8, ease: "power2.out" }, "-=0.3")
-          .from(".la-blanco", { scale: 0, svgOrigin: "300 300", duration: 0.5, ease: "back.out(2)" }, "-=0.5")
-          .to(".la-trazo", { attr: { "stroke-dashoffset": 0 }, duration: 0.7, ease: "power2.inOut", stagger: 0.15 }, "-=0.2")
-          .from(arriba, { y: -40, opacity: 0, scale: 2, transformOrigin: "50% 50%", duration: 0.35, ease: "back.out(2.5)", stagger: 0.06 }, "-=0.3")
-          .from(".la-rombo path", { scale: 0, transformOrigin: "50% 50%", duration: 0.35, ease: "back.out(3)", stagger: 0.1 }, "-=0.1")
-          .from(".la-pareja", { scale: 0.2, opacity: 0, y: 40, svgOrigin: "300 300", duration: 0.8, ease: "elastic.out(1, 0.55)" })
-          .from(abajo, { opacity: 0, scale: 0, transformOrigin: "50% 50%", duration: 0.25, ease: "back.out(3)", stagger: 0.04 }, "-=0.3")
+          .from(".la-fondo", { scale: 0, svgOrigin: "300 300", duration: 0.5, ease: "back.out(1.8)" })
+          // los anillos verdes se dibujan
+          .to(".la-trazo", { attr: { "stroke-dashoffset": 0 }, duration: 0.8, ease: "power2.inOut", stagger: 0.2 }, "-=0.1")
+          // el nombre, letra por letra
+          .from(arriba, { y: -30, opacity: 0, scale: 2, transformOrigin: "50% 50%", duration: 0.32, ease: "back.out(2.5)", stagger: 0.05 }, "-=0.4")
+          // la F gótica aparece en relieve
+          .from(".la-f", { scale: 0.3, opacity: 0, rotation: -25, transformOrigin: "50% 60%", duration: 0.7, ease: "back.out(1.6)" })
+          // los danzantes llegan delante de la F
+          .from(".la-pareja", { scale: 0.2, opacity: 0, y: 40, svgOrigin: "300 300", duration: 0.8, ease: "elastic.out(1, 0.55)" }, "-=0.2")
           .from(juli, { y: -80, opacity: 0, rotation: -20, transformOrigin: "50% 100%", duration: 0.5, ease: "bounce.out", stagger: 0.14 })
-          .from(".la-raya", { scaleX: 0, transformOrigin: "50% 50%", duration: 0.4, ease: "power2.out" }, "-=0.1")
           .to(".la-brillo", { attr: { x: 760 }, opacity: 1, duration: 1.1, ease: "power2.inOut" })
           .from(".sobre-texto > *, .sobre-pista", { opacity: 0, y: 14, duration: 0.4, stagger: 0.12 }, "-=0.6");
       };
