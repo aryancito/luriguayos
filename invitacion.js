@@ -238,7 +238,13 @@ const EVENTO = {
     const tonos = {};
     ["mujer", "varon"].forEach((f) => {
       const d = DEPORTE[f];
-      tonos[f] = { polo: hexAHsl(azar(d.polo)), pantalon: hexAHsl(azar(d.pantalon)), acento: azar(d.acento) };
+      let opciones = d.polo;
+      if (f === "varon") {  // su color, siempre lejos (en matiz) del de ella
+        const hm = tonos.mujer.polo.h;
+        const lejos = d.polo.filter((c) => { const dh = Math.abs(((hexAHsl(c).h - hm) % 360 + 540) % 360 - 180); return dh > 60; });
+        if (lejos.length) opciones = lejos;
+      }
+      tonos[f] = { polo: hexAHsl(azar(opciones)), pantalon: hexAHsl(azar(d.pantalon)), acento: azar(d.acento) };
     });
     (ESCENA.casual || []).forEach((c) => {
       const cuerpo = cuerpos[c.figura];
