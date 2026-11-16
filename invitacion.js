@@ -220,9 +220,13 @@ const EVENTO = {
 
   /* ---------- ropa casual (antes del traje) ----------
    * Mismas formas que el traje, un color por prenda con 4 tonos de sombra. */
-  const CASUAL_COLORES = {
-    polo: ["#ffffff", "#f4f1ea", "#e86a8a", "#7bb7e0", "#ffd166", "#a78bfa", "#2b2b2b", "#2e9e8f", "#e76f51", "#3d5a80"],
-    jean: ["#35507e", "#2b3a55", "#4a6fa5", "#5b7db1"],
+  // ropa deportiva: cada danzante con su propia gama (nunca se repiten), y
+  // un color de acento contrastante para franjas, ribetes y hombros
+  const DEPORTE = {
+    mujer: { polo: ["#ff4f8b", "#a259ff", "#14b8a6", "#ff8a3d", "#f43f5e", "#38bdf8"],
+             pantalon: ["#1f2937", "#3b2f5c", "#0f3d3e"], acento: ["#ffffff", "#fde047"] },
+    varon: { polo: ["#2563eb", "#16a34a", "#dc2626", "#f59e0b", "#0ea5e9", "#7c3aed"],
+             pantalon: ["#111827", "#334155", "#1e3a5f"], acento: ["#ffffff", "#fde047"] },
   };
   const LUZ_NIVEL = [-0.2, 0, -0.08, 0.08]; // pliegue, base, sombra suave, luz (nivel 4: costura)
   const casual = [];
@@ -231,8 +235,11 @@ const EVENTO = {
   // las capas casuales van debajo del cuerpo (manos y cara quedan encima)
   function construirCasual(cuerpos) {
     const ultimaEncima = { ...cuerpos };
-    const jean = hexAHsl(azar(CASUAL_COLORES.jean));
-    const colorPolo = {};
+    const tonos = {};
+    ["mujer", "varon"].forEach((f) => {
+      const d = DEPORTE[f];
+      tonos[f] = { polo: hexAHsl(azar(d.polo)), pantalon: hexAHsl(azar(d.pantalon)), acento: azar(d.acento) };
+    });
     (ESCENA.casual || []).forEach((c) => {
       const cuerpo = cuerpos[c.figura];
       const capa = capaSvg("capa-casual", figuras[c.figura].el);
@@ -244,15 +251,14 @@ const EVENTO = {
         : c.color === "piel" ? ESCENA.silueta.color
         : c.color === "sombra" ? hslAHex(piel.h, piel.s, piel.l * 0.78)
         : c.color === "oro" ? "#f2b705" : null;
-      // la blusa/polo y su faldón comparten color (uno por danzante)
-      colorPolo[c.figura] ||= hexAHsl(azar(CASUAL_COLORES.polo));
-      const base = c.color === "jean" ? jean : colorPolo[c.figura];
+      const tf = tonos[c.figura];
+      const base = c.color === "jean" ? tf.pantalon : tf.polo;
       c.tonos.forEach((t) => {
         const path = document.createElementNS(NS, "path");
         path.setAttribute("d", t.d);
         // tonos claros (blanco/crema) oscurecen menos; la costura del jean es dorada
         const factor = base.l > 0.85 ? 0.55 : 1;
-        path.setAttribute("fill", exacto || (t.nivel === 4 ? "#d9a441"
+        path.setAttribute("fill", exacto || (t.nivel === 5 ? tf.acento : t.nivel === 4 ? "#d9a441"
           : hslAHex(base.h, base.s, clamp(base.l + LUZ_NIVEL[t.nivel] * factor, 0.04, 0.97))));
         capa.appendChild(path);
       });
