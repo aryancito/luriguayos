@@ -13,13 +13,16 @@
 const EVENTO = {
   organiza: "Asociación de Luriguayos Revelación Fanáticos Juli",
   tipo: "Recepción",
-  mensaje: "Será un honor compartir contigo una velada de música, danza y tradición. ¡Acompáñanos!",
+  previo: "Misa de Salud y",      // línea sobre el título grande
+  mensaje: "Iniciaremos con la Misa de Salud y luego compartiremos una velada de música, danza y tradición. ¡Acompáñanos!",
   fecha: "2026-11-28",
-  hora: "17:00",
-  duracionHoras: 5,
-  lugar: "Salón de Eventos Enmanuel",
-  direccion: "Juli, Puno",
-  ubicacion: [-16.212889, -69.461351],
+  misa: "16:00",                  // la invitación empieza con la misa
+  hora: "17:00",                  // recepción
+  duracionHoras: 6,               // desde la misa
+  lugar: "Raíces Juleñas",
+  direccion: "Jr. Ilave 379, Juli",
+  ubicacion: [-16.2150047, -69.4623332],
+  mapa: "https://www.google.com/maps/place/Club+Ra%C3%ADces+Jule%C3%B1as/@-16.2148259,-69.4626258,20z/data=!4m12!1m5!3m4!2zMTbCsDEyJzUzLjkiUyA2OcKwMjcnNDQuOSJX!8m2!3d-16.2149573!4d-69.4624595!3m5!1s0x915db3002149a8e9:0x97c1f7279863308d!8m2!3d-16.2150047!4d-69.4623332!16s%2Fg%2F11xnyg2ggw?hl=es",
   whatsapp: "",
 };
 
@@ -40,8 +43,10 @@ const EVENTO = {
   // fecha y hora en hora local (new Date("AAAA-MM-DD") la tomaría como UTC y
   // en Perú mostraría el día anterior)
   const [anio, mes, dia] = (EVENTO.fecha || "").split("-").map(Number);
-  const [hh, mm] = (EVENTO.hora || "").split(":").map(Number);
-  const conHora = !!EVENTO.hora && !isNaN(hh);
+  const [hh, mm] = (EVENTO.misa || EVENTO.hora || "").split(":").map(Number);
+  const conHora = !!(EVENTO.misa || EVENTO.hora) && !isNaN(hh);
+  const hora12 = (h) => { const [a, b] = h.split(":").map(Number);
+    return new Date(2000, 0, 1, a, b).toLocaleTimeString("es-PE", { hour: "numeric", minute: "2-digit" }); };
   const fecha = anio ? new Date(anio, mes - 1, dia, conHora ? hh : 0, conHora ? mm || 0 : 0) : null;
   const fechaValida = fecha && !isNaN(fecha);
   const [lat, lng] = EVENTO.ubicacion || [];
@@ -59,7 +64,8 @@ const EVENTO = {
       $("#d-dia").textContent = fecha.getDate();
       $("#d-mes-largo").textContent = fecha.toLocaleDateString("es-PE", { month: "long" });
       $("#d-mes").textContent = fecha.toLocaleDateString("es-PE", { month: "short" }).replace(".", "").toUpperCase();
-      if (conHora) $("#d-hora").textContent = fecha.toLocaleTimeString("es-PE", { hour: "numeric", minute: "2-digit" });
+      if (conHora) $("#d-hora").innerHTML = (EVENTO.misa ? `<span>Misa ${hora12(EVENTO.misa)}</span>` : "")
+        + (EVENTO.hora ? `<span>Recepción ${hora12(EVENTO.hora)}</span>` : "");
       else { $("#d-hora").textContent = "Por confirmar"; $("#d-hora").classList.add("pendiente"); }
     } else {
       ["#d-fecha", "#d-hora"].forEach((s) => { $(s).textContent = "Por confirmar"; $(s).classList.add("pendiente"); });
@@ -77,7 +83,7 @@ const EVENTO = {
     if (coords) {
       $("#mapa-iframe").src = `https://maps.google.com/maps?q=${coords}&z=17&hl=es&output=embed`;
       $("#btn-como-llegar").href = `https://www.google.com/maps/dir/?api=1&destination=${coords}&travelmode=driving`;
-      $("#btn-mapa").href = `https://www.google.com/maps/search/?api=1&query=${coords}`;
+      $("#btn-mapa").href = EVENTO.mapa || `https://www.google.com/maps/search/?api=1&query=${coords}`;
       $("#btn-mapa").textContent = "Ver en el mapa ↓";
       $("#btn-mapa").addEventListener("click", (e) => {
         e.preventDefault();
@@ -91,7 +97,7 @@ const EVENTO = {
 
     const confirmar = $("#btn-confirmar");
     if (EVENTO.whatsapp) {
-      const texto = `¡Hola! Confirmo mi asistencia a la ${EVENTO.tipo.toLowerCase()} de la ${EVENTO.organiza}.`;
+      const texto = `¡Hola! Confirmo mi asistencia a la Misa de Salud y Recepción de la ${EVENTO.organiza}.`;
       confirmar.href = `https://wa.me/${EVENTO.whatsapp}?text=${encodeURIComponent(texto)}`;
     } else {
       confirmar.setAttribute("aria-disabled", "true");
@@ -151,7 +157,7 @@ const EVENTO = {
       // sin hora confirmada: evento de todo el día
       ...(conHora ? [`DTSTART:${f(fecha)}`, `DTEND:${f(fin)}`]
         : [`DTSTART;VALUE=DATE:${soloDia(fecha)}`, `DTEND;VALUE=DATE:${soloDia(manana)}`]),
-      `SUMMARY:${esc(`${EVENTO.tipo} · ${EVENTO.organiza}`)}`,
+      `SUMMARY:${esc(`${EVENTO.previo ? EVENTO.previo + " " : ""}${EVENTO.tipo} · ${EVENTO.organiza}`)}`,
       `LOCATION:${esc([EVENTO.lugar, EVENTO.direccion].filter(Boolean).join(", "))}`,
       ...(coords ? [`GEO:${lat};${lng}`] : []),
       `DESCRIPTION:${esc(EVENTO.mensaje)}`, "END:VEVENT", "END:VCALENDAR",
@@ -163,7 +169,7 @@ const EVENTO = {
   }
 
   async function compartir() {
-    const datos = { title: `${EVENTO.tipo} · Luriguayos`, text: `${EVENTO.organiza} te invita a su ${EVENTO.tipo.toLowerCase()}.`, url: location.href.split("?")[0] };
+    const datos = { title: `Misa de Salud y Recepción · Luriguayos`, text: `${EVENTO.organiza} te invita a su Misa de Salud y Recepción.`, url: location.href.split("?")[0] };
     try {
       if (navigator.share) await navigator.share(datos);
       else { await navigator.clipboard.writeText(datos.url); aviso("Enlace copiado"); }

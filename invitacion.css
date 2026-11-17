@@ -477,3 +477,15 @@ body.escena-completa .cambio { top: 30%; }
 .btn-ver[hidden] { display: none; }
 .btn-ver svg { animation: rebote-v 1.4s ease-in-out infinite; }
 @keyframes rebote-v { 50% { transform: translateY(4px); } }
+
+/* Misa de Salud y Recepción */
+.pre-evento { margin: 2px 0 -2px; font: 800 22px "Baloo 2", sans-serif; color: #056b30; letter-spacing: .02em; }
+#d-hora span { display: block; white-space: nowrap; }
+#d-hora span + span { margin-top: 2px; }
+/* franja: fecha arriba; horarios y dirección debajo, en dos columnas */
+.franja { grid-template-columns: 1fr 1fr; row-gap: 12px; }
+.franja .f-centro { grid-column: 1 / -1; order: -1; border: 0; padding: 0; }
+.franja .f-lado { padding: 10px 8px; border-top: 2px solid var(--tinta); }
+.franja .f-lado + .f-lado { border-left: 2px solid var(--tinta); }
+.franja .f-lado b { white-space: normal; }
+.franja #d-hora span { white-space: nowrap; }
