@@ -120,14 +120,6 @@ const EVENTO = {
       $("#btn-mapa").hidden = true;
     }
 
-    const confirmar = $("#btn-confirmar");
-    if (EVENTO.whatsapp) {
-      const texto = `¡Hola! Confirmo mi asistencia a la Misa de Salud y Recepción de la ${EVENTO.organiza}.`;
-      confirmar.href = `https://wa.me/${EVENTO.whatsapp}?text=${encodeURIComponent(texto)}`;
-    } else {
-      confirmar.setAttribute("aria-disabled", "true");
-      confirmar.addEventListener("click", (e) => { e.preventDefault(); aviso("La confirmación se habilitará pronto"); });
-    }
   }
 
   /* ---------- contador de visitas (servicio gratuito Abacus) ----------
