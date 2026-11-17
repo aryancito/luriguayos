@@ -489,3 +489,36 @@ body.escena-completa .cambio { top: 30%; }
 .franja .f-lado + .f-lado { border-left: 2px solid var(--tinta); }
 .franja .f-lado b { white-space: normal; }
 .franja #d-hora span { white-space: nowrap; }
+
+/* ---------- programa: línea de tiempo ---------- */
+.programa { padding: 22px 16px 0; }
+.programa h3 { margin: 0 0 12px; text-align: center; font: 400 28px "Lilita One", sans-serif; color: #056b30; }
+.linea { list-style: none; margin: 0; padding: 0; position: relative; }
+.linea::before { content: ""; position: absolute; left: 92px; top: 20px; bottom: 20px; width: 3px; border-radius: 3px;
+  background: repeating-linear-gradient(#056b30 0 8px, transparent 8px 14px); }
+.paso { display: grid; grid-template-columns: 70px 44px 1fr; align-items: start; gap: 0 8px; }
+.paso-hora { padding-top: 10px; text-align: right; font: 800 15px/1.2 "Baloo 2", sans-serif; color: #056b30; }
+.paso-punto { position: relative; z-index: 1; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 21px; background: #fff; box-shadow: 0 0 0 3px #056b30, 0 6px 14px rgba(5, 107, 48, .25); }
+.paso-info { background: #fff; border-radius: 16px; padding: 10px 12px; box-shadow: var(--sombra), 0 0 0 1px var(--linea); }
+.paso-info b { display: block; font: 800 17px "Baloo 2", sans-serif; color: var(--tinta); }
+.paso-info span { display: block; font-weight: 600; font-size: 14px; color: var(--tinta); }
+.paso-info small { display: block; font-size: 12.5px; color: var(--tinta-2); }
+.paso-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.paso-btns a { font: 700 12.5px Inter, sans-serif; text-decoration: none; padding: 6px 10px; border-radius: 999px;
+  color: #056b30; background: #e7f4ec; }
+.paso-btns a + a { color: #fff; background: #056b30; }
+.tramo { margin: 8px 0 8px 70px; padding-left: 50px; font-size: 12.5px; font-weight: 600; color: var(--tinta-2); }
+.franja .f-lado b br + * { display: none; }
+
+/* ---------- portal en el arco ---------- */
+.portal { position: absolute; z-index: 1; opacity: 0; pointer-events: none; --brillo: 1;
+  border-radius: 50% 50% 8% 8% / 36% 36% 6% 6%; filter: brightness(var(--brillo));
+  background: radial-gradient(ellipse at 50% 60%, #fffbe0 0%, #c8f7d8 25%, rgba(46, 204, 113, .85) 48%, rgba(5, 107, 48, .55) 70%, rgba(5, 107, 48, 0) 78%);
+  box-shadow: 0 0 40px 12px rgba(46, 204, 113, .55), inset 0 0 30px rgba(255, 255, 255, .8); }
+.portal i { position: absolute; inset: 6%; border-radius: inherit; border: 3px solid rgba(255, 255, 255, .7);
+  animation: girar-portal 2.4s linear infinite; mix-blend-mode: screen; }
+.portal i:nth-child(2) { inset: 18%; animation-duration: 1.8s; animation-direction: reverse; border-color: rgba(255, 210, 63, .8); }
+.portal i:nth-child(3) { inset: 30%; animation-duration: 1.3s; border-color: rgba(120, 255, 180, .8); }
+@keyframes girar-portal { to { transform: rotate(360deg) scale(1.04); } }
+.portal i { border-radius: 50%; }

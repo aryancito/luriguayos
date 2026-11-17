@@ -17,6 +17,10 @@ const EVENTO = {
   mensaje: "Iniciaremos con la Misa de Salud y luego compartiremos una velada de música, danza y tradición. ¡Acompáñanos!",
   fecha: "2026-11-28",
   misa: "16:00",                  // la invitación empieza con la misa
+  misaLugar: "Iglesia San Pedro de Juli",
+  misaDetalle: "Catedral San Pedro Mártir · Plaza de Juli",
+  misaUbicacion: [-16.2126925, -69.4604377],
+  misaMapa: "https://www.google.com/maps/place/Catedral+de+San+Pedro+M%C3%A1rtir+de+Verona+-+Prelatura+de+Juli/@-16.2126927,-69.4612901,19z/data=!4m10!1m2!2m1!1sIglesia+San+Pedro+de+Juli,!3m6!1s0x915db28c1d75ca79:0xbf92695cbb5efa98!8m2!3d-16.2126925!4d-69.4604377!15sChpJZ2xlc2lhIFNhbiBQZWRybyBkZSBKdWxpLJIBD2NhdGhvbGljX2NodXJjaOABAA!16s%2Fg%2F11b8_n7yrt?hl=es",
   hora: "17:00",                  // recepción
   duracionHoras: 6,               // desde la misa
   lugar: "Raíces Juleñas",
@@ -81,8 +85,29 @@ const EVENTO = {
 
     // mapa de Google con el punto del local y botón de ruta
     if (coords) {
-      $("#mapa-iframe").src = `https://maps.google.com/maps?q=${coords}&z=17&hl=es&output=embed`;
-      $("#btn-como-llegar").href = `https://www.google.com/maps/dir/?api=1&destination=${coords}&travelmode=driving`;
+      const misa = (EVENTO.misaUbicacion || []).join(",");
+      $("#mapa-iframe").src = misa
+        ? `https://maps.google.com/maps?saddr=${misa}&daddr=${coords}&dirflg=w&hl=es&output=embed`
+        : `https://maps.google.com/maps?q=${coords}&z=17&hl=es&output=embed`;
+      $("#btn-como-llegar").href = misa
+        ? `https://www.google.com/maps/dir/?api=1&origin=${misa}&destination=${coords}&travelmode=walking`
+        : `https://www.google.com/maps/dir/?api=1&destination=${coords}&travelmode=driving`;
+      // programa del día
+      const hora12b = (h) => { const [a, b] = h.split(":").map(Number);
+        return new Date(2000, 0, 1, a, b).toLocaleTimeString("es-PE", { hour: "numeric", minute: "2-digit" }); };
+      const ruta = (c) => `https://www.google.com/maps/dir/?api=1&destination=${c}&travelmode=walking`;
+      if (EVENTO.misa) {
+        $("#pg-misa-hora").textContent = hora12b(EVENTO.misa);
+        $("#pg-misa-lugar").textContent = EVENTO.misaLugar;
+        $("#pg-misa-det").textContent = EVENTO.misaDetalle || "";
+        $("#pg-misa-mapa").href = EVENTO.misaMapa || `https://www.google.com/maps/search/?api=1&query=${misa}`;
+        $("#pg-misa-ruta").href = ruta(misa);
+      }
+      $("#pg-rec-hora").textContent = hora12b(EVENTO.hora);
+      $("#pg-rec-lugar").textContent = EVENTO.lugar;
+      $("#pg-rec-det").textContent = EVENTO.direccion;
+      $("#pg-rec-mapa").href = EVENTO.mapa || `https://www.google.com/maps/search/?api=1&query=${coords}`;
+      $("#pg-rec-ruta").href = ruta(coords);
       $("#btn-mapa").href = EVENTO.mapa || `https://www.google.com/maps/search/?api=1&query=${coords}`;
       $("#btn-mapa").textContent = "Ver en el mapa ↓";
       $("#btn-mapa").addEventListener("click", (e) => {
@@ -680,39 +705,64 @@ const EVENTO = {
   const casualDe = (id) => casual.filter((c) => c.reemplaza === id).map((c) => c.capa);
   const centro = (st) => [(st.pieza.caja[0] + st.pieza.caja[2]) / 2, (st.pieza.caja[1] + st.pieza.caja[3]) / 2];
 
-  // ella: transformación estilo Sailor Moon
+  /* ---------- portal en el arco ----------
+   * La abertura del arco (foto 1080x1350, centro 528, de y 338 a 832) se
+   * calcula en pantalla según cómo se recorta la foto (object-fit: cover). */
+  function geoPortal() {
+    const r = $(".hero").getBoundingClientRect();
+    const k = Math.max(r.width / 1080, r.height / 1350);
+    const ox = r.left + (r.width - 1080 * k) / 2, oy = r.top + (r.height - 1350 * k) / 2;
+    return { cx: ox + 528 * k, top: oy + 338 * k, bottom: oy + 832 * k, ancho: 352 * k, r, k };
+  }
+  function ubicarPortal() {
+    const g = geoPortal(), p = $(".portal");
+    Object.assign(p.style, { left: `${g.cx - g.r.left - g.ancho / 2}px`, top: `${g.top - g.r.top}px`,
+      width: `${g.ancho}px`, height: `${g.bottom - g.top}px` });
+  }
+  const PIES = { mujer: [490, 1060], varon: [1010, 1060] };
+  const ESCALA_PORTAL = 0.36;
+  // desplazamiento para que los pies del danzante queden en el umbral del portal
+  const haciaPortal = (fig, eje) => () => {
+    const g = geoPortal(), [px, py] = enPantalla(PIES[fig]);
+    return eje === "x" ? g.cx - px : (g.bottom - 6) - py;
+  };
+  // camina: avanza con un leve balanceo
+  function caminar(tl, el, fig, entrar, pos) {
+    const [ox, oy] = pct(PIES[fig]);
+    tl.to(el, entrar
+      ? { x: haciaPortal(fig, "x"), y: haciaPortal(fig, "y"), scale: ESCALA_PORTAL, transformOrigin: `${ox}% ${oy}%`, duration: 1.3, ease: "power1.inOut" }
+      : { x: 0, y: 0, scale: 1, transformOrigin: `${ox}% ${oy}%`, duration: 1.2, ease: "power2.out" }, pos)
+      .fromTo(el, { rotation: -3 }, { rotation: 3, duration: 0.22, yoyo: true, repeat: 5, ease: "sine.inOut",
+        transformOrigin: `${ox}% ${oy}%`, immediateRender: false }, "<")
+      .set(el, { rotation: 0 });
+  }
+
+  // ella: entra al portal, se transforma (silueta luminosa que gira) y sale vestida
   function transformarElla(tl) {
     const ella = figuras.mujer;
     const suyas = ella.prendas.filter((p) => !p.fija && !/borla/.test(p.pieza.id)).sort((a, b) => b.pieza.caja[3] - a.pieza.caja[3]);
-    const [ox, oy] = pct(CENTRO_ELLA);
     if (suave) {  // con "reducir movimiento": fundido sencillo
       tl.to(ella.casual, { opacity: 0, duration: 0.6 }).to(suyas.map((p) => p.capa), { opacity: 1, duration: 0.6 }, "<");
       return;
     }
+    const [ox, oy] = pct(PIES.mujer);
     tl.addLabel("ella")
-      .to(".pareja", { scale: 1.55, transformOrigin: `${ox}% ${oy}%`, duration: 0.8, ease: "power2.inOut" }, "ella")
-      .to(".transfo", { opacity: 1, duration: 0.8 }, "ella")
-      // silueta luminosa que gira
-      .to(ella.luz, { opacity: 1, duration: 0.35 }, "ella+=0.5")
-      .to(ella.el, { scaleX: -1, transformOrigin: `${ox}% ${oy}%`, duration: 0.22, ease: "sine.inOut",
-        yoyo: true, repeat: 3 }, "ella+=0.6")
-      // destello: se apaga la luz y aparece vestida, prenda por prenda, de los pies a la cabeza
-      .to(ella.luz, { opacity: 0, duration: 0.25 }, "ella+=1.5")
-      .fromTo(".destello", { opacity: 0.95 }, { opacity: 0, duration: 0.6, immediateRender: false }, "ella+=1.5")
-      .fromTo(".anillo", { y: 0, opacity: 0 }, { y: -900, opacity: 1, duration: 1.4, ease: "power1.inOut",
-        stagger: 0.18, immediateRender: false }, "ella+=1.5")
-      .to(".anillo", { opacity: 0, duration: 0.3, stagger: 0.18 }, "ella+=2.6");
+      .add(ubicarPortal, "ella")
+      .fromTo(".portal", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: "back.out(1.6)" }, "ella")
+      .to(".transfo", { opacity: 0.55, duration: 0.8 }, "ella");
+    caminar(tl, ella.el, "mujer", true, "ella+=0.5");
+    tl.addLabel("dentro")
+      .to(ella.luz, { opacity: 1, duration: 0.3 }, "dentro")
+      .to(ella.el, { scaleX: -ESCALA_PORTAL, transformOrigin: `${ox}% ${oy}%`, duration: 0.2, ease: "sine.inOut", yoyo: true, repeat: 3 }, "dentro+=0.1")
+      .to(".portal", { "--brillo": 1.6, duration: 0.3, yoyo: true, repeat: 1 }, "dentro+=0.3")
+      .to(ella.luz, { opacity: 0, duration: 0.3 }, "dentro+=1.0");
     suyas.forEach((st, i) => {
-      // la prenda casual que esta cubre se va justo cuando aparece (nunca queda el cuerpo vacío)
       const cubre = casualDe(st.pieza.id);
-      tl.fromTo(st.capa, { opacity: 0, scale: 1.3, transformOrigin: st.origen },
-        { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)", immediateRender: false }, `ella+=${1.55 + i * 0.2}`)
-        .add(() => chispas(centro(st), 10), "<");
-      if (cubre.length) tl.set(cubre, { display: "none" }, "<+0.2");
+      tl.fromTo(st.capa, { opacity: 0 }, { opacity: 1, duration: 0.3, immediateRender: false }, `dentro+=${1.0 + i * 0.12}`);
+      if (cubre.length) tl.set(cubre, { display: "none" }, "<+0.15");
     });
-    tl.add(() => chispas(CENTRO_ELLA, 36), ">-0.1")
-      .to(".pareja", { scale: 1, duration: 0.8, ease: "power2.inOut" }, "+=0.35")
-      .to(".transfo", { opacity: 0, duration: 0.8 }, "<");
+    tl.add(() => { const g = geoPortal(); window.Carnaval && Carnaval.picado(g.cx, g.bottom - 40, 26); }, "dentro+=1.1");
+    caminar(tl, ella.el, "mujer", false, "dentro+=1.7");
   }
 
   // rosas rojas: cruzan toda la pantalla en curva y se posan en la montera
@@ -809,41 +859,34 @@ const EVENTO = {
     tic();
   }
 
-  // él: transformación Super Saiyajin
+  // él: entra al portal, se carga de electricidad azul y sale vestido
   function correrEl(tl) {
     const el = figuras.varon;
     const suyas = el.prendas.filter((p) => !p.fija && !/borla/.test(p.pieza.id))
       .sort((a, b) => b.pieza.caja[3] - a.pieza.caja[3]);
-    const [ox, oy] = pct(CENTRO_EL);
-    tl.addLabel("el", "+=0.3")
-      .to(".pareja", { scale: 1.45, transformOrigin: `${ox}% ${oy}%`, duration: 0.7, ease: "power2.inOut" }, "el")
-      .to(".transfo", { opacity: 1, duration: 0.6 }, "el")
-      // se agacha, tiembla y aparece el aura
-      .to(el.el, { y: 14, duration: 0.25, ease: "power2.in" }, "el+=0.5")
-      .fromTo(".pareja", { x: -4 }, { x: 4, duration: 0.05, repeat: 25, yoyo: true, ease: "none" }, "el+=0.6")
-      .fromTo(el.aura, { opacity: 0, scale: 0.4, transformOrigin: `${ox}% 95%` },
-        { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, "el+=0.6")
-      .fromTo(".capa-aura .llama", { scaleY: 0.92, transformOrigin: "50% 100%" },
-        { scaleY: 1.06, duration: 0.12, repeat: 18, yoyo: true, ease: "sine.inOut" }, "el+=0.6")
-      .fromTo(el.dorado, { opacity: 0 }, { opacity: 0.92, duration: 0.3 }, "el+=0.8")
-      // electricidad azul que recorre su cuerpo (aura eléctrica)
-      .add(() => tormenta(el.rayos, 2.2), "el+=0.6")
-      .add(() => chispas([1000, 1000], 30), "el+=1.0")
-      .to(el.el, { y: 0, duration: 0.3, ease: "back.out(3)" }, "el+=1.4")
-      // explosión de energía: se va lo casual y aparece el traje, prenda por prenda
-      .fromTo(".destello", { opacity: 0.9 }, { opacity: 0, duration: 0.5, immediateRender: false }, "el+=1.8")
-      .set(el.casual, { display: "none" }, "el+=1.8")
-      .to(el.dorado, { opacity: 0, duration: 0.6 }, "el+=1.85");
+    if (suave) {
+      tl.to(el.casual, { opacity: 0, duration: 0.6 }).to(suyas.map((p) => p.capa), { opacity: 1, duration: 0.6 }, "<");
+      return;
+    }
+    const [ox, oy] = pct(PIES.varon);
+    caminar(tl, el.el, "varon", true, "+=0.2");
+    tl.addLabel("eldentro")
+      .fromTo(el.aura, { opacity: 0, scale: 0.4, transformOrigin: `${ox}% ${oy}%` },
+        { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, "eldentro")
+      .fromTo(el.dorado, { opacity: 0 }, { opacity: 0.92, duration: 0.3 }, "eldentro+=0.1")
+      .add(() => tormenta(el.rayos, 1.6), "eldentro")
+      .to(".portal", { "--brillo": 1.6, duration: 0.25, yoyo: true, repeat: 3 }, "eldentro+=0.2")
+      .set(el.casual, { display: "none" }, "eldentro+=1.1")
+      .to(el.dorado, { opacity: 0, duration: 0.4 }, "eldentro+=1.1");
     suyas.forEach((st, i) => {
-      tl.fromTo(st.capa, { opacity: 0, scale: 1.25, transformOrigin: st.origen },
-        { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)", immediateRender: false }, `el+=${1.85 + i * 0.16}`)
-        .add(() => chispas(centro(st), 8), "<");
+      tl.fromTo(st.capa, { opacity: 0 }, { opacity: 1, duration: 0.3, immediateRender: false }, `eldentro+=${1.1 + i * 0.1}`);
     });
-    // el chullo cubre el cabello dorado; el aura se apaga
-    tl.to(el.aura, { opacity: 0, scale: 1.3, duration: 0.6 }, `el+=${1.9 + suyas.length * 0.16}`)
-      .add(() => chispas(CENTRO_EL, 36), "<")
-      .to(".pareja", { scale: 1, x: 0, duration: 0.8, ease: "power2.inOut" }, "+=0.2")
-      .to(".transfo", { opacity: 0, duration: 0.8 }, "<");
+    tl.to(el.aura, { opacity: 0, duration: 0.5 }, "eldentro+=1.6")
+      .add(() => { const g = geoPortal(); window.Carnaval && Carnaval.picado(g.cx, g.bottom - 40, 30); }, "eldentro+=1.2");
+    caminar(tl, el.el, "varon", false, "eldentro+=1.6");
+    // el portal se cierra
+    tl.to(".portal", { scale: 0, opacity: 0, duration: 0.6, ease: "back.in(1.6)" }, ">-0.3")
+      .to(".transfo", { opacity: 0, duration: 0.6 }, "<");
   }
 
   function entradaInvitacion() {
