@@ -563,3 +563,12 @@ body.escena-completa .cambio { top: 30%; }
 .tramo b { font-weight: 600; }
 
 .leyenda i { background: none !important; height: 0; border-top: 6px dotted var(--c); }
+
+/* tramo en curso: los puntos avanzan como una marcha */
+.tramo-vivo { animation: marcha .9s linear infinite; filter: drop-shadow(0 0 6px rgba(255, 255, 255, .9)); }
+@keyframes marcha { to { stroke-dashoffset: -18; } }
+.leyenda li[data-estado="hecho"] { opacity: .5; text-decoration: line-through; }
+.leyenda li[data-estado="ahora"] { font-weight: 800; }
+.leyenda li[data-estado="ahora"]::after { content: "● En curso"; color: #d62828; font-size: 11px; font-weight: 800; letter-spacing: .06em; }
+.leyenda li[data-estado="ahora"]::after { flex-basis: 100%; padding-left: 34px; margin-top: -4px; animation: pulso-texto 1.2s ease-in-out infinite; }
+@keyframes pulso-texto { 50% { opacity: .45; } }

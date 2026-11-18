@@ -140,6 +140,29 @@ const EVENTO = {
   /* ---------- mapa del recorrido: un color por tramo (Leaflet + OpenStreetMap) ---------- */
   const COLORES_TRAMO = ["#f72585", "#056b30"];
   let mapaHecho = false;
+  let lineasTramo = [];          // [{fondo, linea}] por tramo
+  let estadoTramos = [];         // "hecho" | "ahora" | "proximo"
+  // pinta cada tramo según la hora: en curso resaltado y en marcha, recorrido atenuado
+  function pintarTramos() {
+    lineasTramo.forEach(({ fondo, linea }, i) => {
+      const e = estadoTramos[i] || "proximo";
+      const el = linea.getElement();
+      if (e === "hecho") {
+        linea.setStyle({ color: "#9aa0aa", weight: 5, opacity: 0.7, dashArray: "1 10" });
+        fondo.setStyle({ weight: 9, opacity: 0.6 });
+      } else if (e === "ahora") {
+        linea.setStyle({ color: COLORES_TRAMO[i], weight: 9, opacity: 1, dashArray: "2 16" });
+        fondo.setStyle({ weight: 16, opacity: 1 });
+        linea.bringToFront();
+      } else {
+        linea.setStyle({ color: COLORES_TRAMO[i], weight: 6, opacity: 1, dashArray: "1 12" });
+        fondo.setStyle({ weight: 10, opacity: 0.9 });
+      }
+      if (el) el.classList.toggle("tramo-vivo", e === "ahora");
+      const li = $$(".leyenda li")[i];
+      if (li) li.dataset.estado = e;
+    });
+  }
   function dibujarRuta() {
     const caja = $("#mapa-ruta");
     if (!caja || !window.L || !window.RUTA) return;
@@ -160,9 +183,11 @@ const EVENTO = {
       }).addTo(mapa);
       const capas = [];
       RUTA.tramos.forEach((t, i) => {
-        L.polyline(t.pts, { color: "#fff", weight: 10, opacity: 0.9 }).addTo(mapa);
-        capas.push(L.polyline(t.pts, { color: COLORES_TRAMO[i], weight: 6, opacity: 1,
-          dashArray: "1 12", lineCap: "round" }).addTo(mapa));
+        const fondo = L.polyline(t.pts, { color: "#fff", weight: 10, opacity: 0.9 }).addTo(mapa);
+        const linea = L.polyline(t.pts, { color: COLORES_TRAMO[i], weight: 6, opacity: 1,
+          dashArray: "1 12", lineCap: "round" }).addTo(mapa);
+        capas.push(linea);
+        lineasTramo.push({ fondo, linea });
       });
       const hora12c = (h) => { const [x, y] = h.split(":").map(Number);
         return new Date(2000, 0, 1, x, y).toLocaleTimeString("es-PE", { hour: "numeric", minute: "2-digit" }); };
@@ -178,6 +203,7 @@ const EVENTO = {
         L.marker(pos, { icon: icono }).addTo(mapa).bindPopup(`<b>${nombre}</b>${hora ? "<br>" + hora12c(hora) : ""}`);
       });
       mapa.fitBounds(L.featureGroup(capas).getBounds(), { padding: [30, 30] });
+      pintarTramos();   // tras fijar la vista: antes Leaflet aún no creó los trazos
     };
     const obs = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { crear(); obs.disconnect(); } },
       { rootMargin: "300px" });
@@ -228,6 +254,11 @@ const EVENTO = {
       li.dataset.estado = estado;
       $(".paso-estado", li).textContent = estado === "hecho" ? "✓ Realizado" : estado === "ahora" ? "● En curso" : "";
     });
+    // tramos del mapa: 1 = concentración → iglesia (durante la concentración/recorrido);
+    // 2 = iglesia → local (entre la misa y la recepción)
+    const est = (clave) => ($(`.paso[data-paso="${clave}"]`) || {}).dataset?.estado || "proximo";
+    const nuevos = [est("concentracion"), est("misa")];
+    if (nuevos.join() !== estadoTramos.join()) { estadoTramos = nuevos; pintarTramos(); }
     return ahora;
   }
 
