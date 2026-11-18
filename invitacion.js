@@ -560,24 +560,9 @@ const EVENTO = {
   const btnMusica = $("#btn-musica");
   const vol = { v: 0 };
   let fundido = null;
-  let ganancia = null; // Web Audio: único modo de bajar el volumen en iPhone
-
-  // iOS Safari ignora audio.volume; con un GainNode el fundido funciona en todos.
-  // Desde file:// el navegador silenciaría el nodo, ahí se usa audio.volume.
-  function prepararGanancia() {
-    const Ctx = window.AudioContext || window.webkitAudioContext;
-    if (ganancia || !Ctx || location.protocol === "file:") return;
-    try {
-      const ctx = new Ctx();
-      ganancia = ctx.createGain();
-      ganancia.gain.value = 0;
-      ctx.createMediaElementSource(musica).connect(ganancia).connect(ctx.destination);
-      ganancia.ctx = ctx;
-    } catch { ganancia = null; }
-  }
-  function aplicarVolumen(v) {
-    if (ganancia) ganancia.gain.value = v; else musica.volume = v;
-  }
+  // Se reproduce el <audio> directo (lo más compatible). El fundido usa
+  // audio.volume; iPhone lo ignora y ahí suena directo al volumen normal.
+  function aplicarVolumen(v) { musica.volume = Math.max(0, Math.min(1, v)); }
 
   function fundirA(destino, segundos, alTerminar) {
     clearInterval(fundido);
@@ -590,18 +575,9 @@ const EVENTO = {
     }, 50);
   }
 
-  // reanuda el contexto de audio y reproduce; si el navegador lo bloquea
-  // (sin toque del usuario) la promesa falla
+  // reproduce; si el navegador lo bloquea (sin toque del usuario) la promesa falla
   function sonar() {
-    prepararGanancia();
-    const ctx = ganancia && ganancia.ctx;
-    // sin gesto, resume() puede quedar pendiente para siempre: se espera como máximo 600 ms
-    const reanudar = ctx && ctx.state !== "running"
-      ? Promise.race([ctx.resume(), new Promise((r) => setTimeout(r, 600))]) : Promise.resolve();
-    return Promise.all([musica.play(), reanudar]).then(() => {
-      // un contexto suspendido deja el audio "sonando" en silencio: cuenta como bloqueado
-      if (ctx && ctx.state !== "running") throw new Error("audio bloqueado");
-    });
+    return musica.play();
   }
   function marcarSonando(sonando) {
     btnMusica.hidden = false;
@@ -616,8 +592,11 @@ const EVENTO = {
       if (!btnMusica.classList.contains("mudo")) return;
       sonar().then(() => { marcarSonando(true); fundirA(VOLUMEN_FINAL, 3); }).catch(() => sonarAlTocar());
     };
-    const quitar = () => ["pointerdown", "touchend", "click", "keydown"].forEach((t) => document.removeEventListener(t, alTocar, true));
-    ["pointerdown", "touchend", "click", "keydown"].forEach((t) => document.addEventListener(t, alTocar, true));
+    // solo eventos que el navegador acepta como toque del usuario para el audio
+    // (en celulares pointerdown NO cuenta: hay que esperar a levantar el dedo)
+    const EVENTOS = ["touchend", "click", "keydown"];
+    const quitar = () => EVENTOS.forEach((t) => document.removeEventListener(t, alTocar, true));
+    EVENTOS.forEach((t) => document.addEventListener(t, alTocar, true));
   }
 
   // intenta sonar al abrir; los celulares bloquean el audio sin gesto:
