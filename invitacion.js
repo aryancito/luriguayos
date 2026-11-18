@@ -97,7 +97,7 @@ const EVENTO = {
       const origen = conc || misa;
       dibujarRuta();
       // puntos de paso para que Google siga el recorrido real (Jr. Ilave, vuelta a la plaza, catedral, Jr. Loyola)
-      const VIA = ["-16.214809,-69.46239", "-16.213562,-69.459815", "-16.213959,-69.458957", "-16.213016,-69.458592", "-16.212681,-69.459493", "-16.2126925,-69.4604377", "-16.213562,-69.459815"];
+      const VIA = ["-16.214809,-69.46239", "-16.213562,-69.459815", "-16.213959,-69.458957", "-16.213016,-69.458592", "-16.212681,-69.459493", "-16.2131439,-69.4596406", "-16.213562,-69.459815"];
       $("#btn-como-llegar").href = origen
         ? `https://www.google.com/maps/dir/?api=1&origin=${origen}&destination=${coords}&waypoints=${encodeURIComponent((conc && misa ? VIA : [misa]).join("|"))}&travelmode=walking`
         : `https://www.google.com/maps/dir/?api=1&destination=${coords}&travelmode=driving`;
