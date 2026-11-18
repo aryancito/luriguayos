@@ -531,3 +531,19 @@ body.escena-completa .cambio { top: 30%; }
 .franja .f-lado b br + * { display: inline; }
 .franja .f-lado b { font-size: 14px; }
 .franja #d-hora { font-size: 12.5px; } .franja .f-lado { padding-left: 4px; padding-right: 4px; }
+
+/* estado de cada paso del programa */
+.paso-estado { display: block; font-style: normal; font-size: 11px; font-weight: 800; letter-spacing: .08em;
+  text-transform: uppercase; margin-bottom: 2px; }
+.paso-estado:empty { display: none; }
+.paso[data-estado="hecho"] .paso-info, .paso[data-estado="hecho"] .paso-punto, .paso[data-estado="hecho"] .paso-hora { opacity: .5; filter: grayscale(.7); }
+.paso[data-estado="hecho"] .paso-info b { text-decoration: line-through; text-decoration-thickness: 2px; }
+.paso[data-estado="hecho"] .paso-estado { color: #6b6f7b; }
+.paso[data-estado="ahora"] .paso-estado { color: #d62828; }
+.paso[data-estado="ahora"] .paso-info { box-shadow: 0 0 0 2px #056b30, 0 10px 24px rgba(5, 107, 48, .25); }
+.paso[data-estado="ahora"] .paso-punto { animation: pulso-paso 1.4s ease-in-out infinite; }
+@keyframes pulso-paso { 0%, 100% { box-shadow: 0 0 0 3px #056b30, 0 0 0 0 rgba(5, 107, 48, .5); }
+  50% { box-shadow: 0 0 0 3px #056b30, 0 0 0 12px rgba(5, 107, 48, 0); } }
+.cuenta-estado { margin: 4px 0 0; font: 800 20px "Baloo 2", sans-serif; color: #056b30; text-transform: none; letter-spacing: 0; }
+.cuenta-numeros[hidden], .cuenta-estado[hidden] { display: none; }
+.cuenta p.cuenta-estado { font: 800 20px "Baloo 2", sans-serif; color: #056b30; text-transform: none; letter-spacing: 0; opacity: 1; margin: 4px 0 0; }

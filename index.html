@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Cinzel:wght@700&family=Lilita+One&family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="icono.png?v=11">
 <link rel="apple-touch-icon" href="logo-marca.png?v=11">
-<link rel="stylesheet" href="invitacion.css?v=67">
+<link rel="stylesheet" href="invitacion.css?v=69">
 </head>
 <body class="cerrado">
 
@@ -193,10 +193,11 @@
   <section class="programa revelar" id="programa">
     <h3>Programa</h3>
     <ol class="linea">
-      <li class="paso">
+      <li class="paso" data-paso="concentracion">
         <span class="paso-hora" id="pg-conc-hora"></span>
         <span class="paso-punto" aria-hidden="true">🚩</span>
         <div class="paso-info">
+          <em class="paso-estado"></em>
           <b>Concentración</b>
           <span id="pg-conc-lugar"></span>
           <small>Punto de partida del recorrido</small>
@@ -204,10 +205,11 @@
         </div>
       </li>
       <li class="tramo"><span>💃 Recorrido danzando hacia la iglesia</span></li>
-      <li class="paso">
+      <li class="paso" data-paso="misa">
         <span class="paso-hora" id="pg-misa-hora"></span>
         <span class="paso-punto" aria-hidden="true">⛪</span>
         <div class="paso-info">
+          <em class="paso-estado"></em>
           <b>Misa de Salud</b>
           <span id="pg-misa-lugar"></span>
           <small id="pg-misa-det"></small>
@@ -215,10 +217,11 @@
         </div>
       </li>
       <li class="tramo"><span>🚶 Luego vamos juntos al local · aprox. 5 min a pie</span></li>
-      <li class="paso">
+      <li class="paso" data-paso="hora">
         <span class="paso-hora" id="pg-rec-hora"></span>
         <span class="paso-punto" aria-hidden="true">🎉</span>
         <div class="paso-info">
+          <em class="paso-estado"></em>
           <b>Recepción</b>
           <span id="pg-rec-lugar"></span>
           <small id="pg-rec-det"></small>
@@ -231,7 +234,8 @@
   </section>
 
   <section class="cuenta revelar" id="cuenta" hidden>
-    <p>Faltan</p>
+    <p id="cuenta-titulo">Faltan</p>
+    <p class="cuenta-estado" id="cuenta-estado" hidden></p>
     <div class="cuenta-numeros">
       <div><b id="c-dias">0</b><small>días</small></div>
       <div><b id="c-horas">0</b><small>horas</small></div>
@@ -282,6 +286,6 @@
 <script defer src="motor.js?v=4"></script>
 <script defer src="silueta.js?v=1"></script>
 <script defer src="carnaval.js?v=3"></script>
-<script defer src="invitacion.js?v=74"></script>
+<script defer src="invitacion.js?v=75"></script>
 </body>
 </html>

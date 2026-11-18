@@ -157,12 +157,51 @@ const EVENTO = {
   }
 
   /* ---------- cuenta regresiva ---------- */
+  /* Estado del día: cada paso del programa queda "Realizado", "En curso" o
+   * próximo según la hora; la cuenta regresiva pasa a mostrar el momento. */
+  const momento = (hhmm) => {
+    if (!hhmm || !fechaValida) return null;
+    const [a, b] = hhmm.split(":").map(Number);
+    return new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate(), a, b || 0);
+  };
+  const PASOS = [
+    { clave: "concentracion", nombre: "la concentración", inicio: momento(EVENTO.concentracion) },
+    { clave: "misa", nombre: "la Misa de Salud", inicio: momento(EVENTO.misa) },
+    { clave: "hora", nombre: "la Recepción", inicio: momento(EVENTO.hora) },
+  ].filter((p) => p.inicio);
+  const finDia = fechaValida ? new Date(fecha.getTime() + EVENTO.duracionHoras * 3600e3) : null;
+
+  function actualizarEstados() {
+    const ahora = new Date();
+    PASOS.forEach((p, i) => {
+      const sig = PASOS[i + 1] ? PASOS[i + 1].inicio : finDia;
+      const li = $(`.paso[data-paso="${p.clave}"]`);
+      if (!li) return;
+      const estado = ahora >= sig ? "hecho" : ahora >= p.inicio ? "ahora" : "proximo";
+      li.dataset.estado = estado;
+      $(".paso-estado", li).textContent = estado === "hecho" ? "✓ Realizado" : estado === "ahora" ? "● En curso" : "";
+    });
+    return ahora;
+  }
+
   function cuentaRegresiva() {
-    if (!fechaValida || fecha < new Date()) return;
+    if (!fechaValida) return;
     $("#cuenta").hidden = false;
     const pad = (n) => String(n).padStart(2, "0");
     const tic = () => {
-      let s = Math.max(0, Math.floor((fecha - new Date()) / 1000));
+      const ahora = actualizarEstados();
+      if (ahora >= fecha) {
+        // el día ya empezó: en vez de números, qué está pasando
+        $(".cuenta-numeros").hidden = true;
+        $("#cuenta-titulo").textContent = ahora >= finDia ? "¡Gracias!" : "Ahora";
+        const actual = [...PASOS].reverse().find((p) => ahora >= p.inicio);
+        const est = $("#cuenta-estado");
+        est.hidden = false;
+        est.textContent = ahora >= finDia ? "Gracias por acompañarnos en esta fiesta 💚"
+          : `Estamos en ${actual.nombre} 🎉`;
+        return;
+      }
+      let s = Math.max(0, Math.floor((fecha - ahora) / 1000));
       const d = Math.floor(s / 86400); s %= 86400;
       const h = Math.floor(s / 3600); s %= 3600;
       const m = Math.floor(s / 60); s %= 60;
