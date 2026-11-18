@@ -572,3 +572,7 @@ body.escena-completa .cambio { top: 30%; }
 .leyenda li[data-estado="ahora"]::after { content: "● En curso"; color: #d62828; font-size: 11px; font-weight: 800; letter-spacing: .06em; }
 .leyenda li[data-estado="ahora"]::after { flex-basis: 100%; padding-left: 34px; margin-top: -4px; animation: pulso-texto 1.2s ease-in-out infinite; }
 @keyframes pulso-texto { 50% { opacity: .45; } }
+
+/* transformación: cintas de luz (ella) y anillos de impacto (él) */
+.capa-cintas { opacity: 0; pointer-events: none; filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 12px #f72585); }
+.capa-choques { pointer-events: none; filter: drop-shadow(0 0 6px #4cc9f0); }

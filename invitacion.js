@@ -495,6 +495,23 @@ const EVENTO = {
       prendas.push(st);
       figuras[p.figura].prendas.push(st);
     });
+    // la camisa de él llega como prenda completa: debajo lleva una base del mismo
+    // blanco con la forma de camisa + pantalón + faja + bufanda (sin huecos que
+    // esperen a la pieza siguiente)
+    const camisa = prendas.find((s) => s.pieza.id === "v_camisa");
+    if (camisa) {
+      // el tono más claro de la camisa (su blanco)
+      const luz = (c) => { const n = parseInt(c.slice(1), 16); return (n >> 16) + ((n >> 8) & 255) + (n & 255); };
+      const tonoBase = camisa.pieza.tonos.reduce((a, t) => (luz(t.color) > luz(a.color) ? t : a)).color;
+      // capa propia debajo de TODAS sus prendas (si fuera dentro de la camisa
+      // taparía la bufanda y la banda, que van más abajo en el orden)
+      const base = capaSvg("capa-prenda capa-base", figuras.varon.el);
+      base.innerHTML = ESCENA.prendas.filter((p) => /^v_(camisa|pantalon|faja|bufanda)$/.test(p.id))
+        .flatMap((p) => p.tonos.map((t) => `<path d="${t.d}" fill="${tonoBase}"/>`)).join("");
+      const primera = figuras.varon.prendas[0].capa;
+      primera.parentNode.insertBefore(base, primera);
+      camisa.base = base;   // vuela junto con la camisa
+    }
   }
 
   // colores nuevos para el atuendo en cada visita o toque: armonía al azar;
@@ -892,15 +909,65 @@ const EVENTO = {
       .set(el, { rotation: 0 });
   }
 
-  // ella: entra al portal, se transforma (silueta luminosa que gira) y sale vestida
+  /* Cada prenda llega volando desde su propio lado y encaja en el cuerpo.
+   * [dx, dy] en fracciones de la pantalla, giro inicial en grados. */
+  const VUELO_ELLA = {
+    m_pollera: [0, 0.9, 0], m_volantes: [-0.9, 0.6, -180], m_blusa: [-1, -0.05, -110],
+    m_tela: [1, 0.15, 140], m_manta: [0.9, -0.7, 220], m_sombrero: [0, -1, -360],
+  };
+  const VUELO_EL = {
+    v_camisa: [-1, -0.15, -30], v_pantalon: [0.85, 0.85, 25], v_faja: [1, 0.1, 30],
+    v_bufanda: [-0.85, -0.85, -40], v_banda: [0.85, -0.85, 40], v_chullo: [0, -1, 0],
+  };
+  const ordenVuelo = (lista, vuelo) => Object.keys(vuelo).map((id) => lista.find((p) => p.pieza.id === id)).filter(Boolean)
+    .concat(lista.filter((p) => !(p.pieza.id in vuelo)));
+
+  // una prenda sale del portal, se abre hacia su lado y vuelve a encajar en el cuerpo
+  function desdePortal(st, [dx, dy, giro], armadura, alLlegar) {
+    const g = geoPortal();
+    const [sx, sy] = enPantalla(centro(st));
+    const px = g.cx - sx, py = (g.top + g.bottom) / 2 - sy;
+    const mx = px * 0.45 + dx * innerWidth * 0.42, my = py * 0.45 + dy * innerHeight * 0.28;
+    const capas = [st.capa, st.base].filter(Boolean);
+    G.set(capas, { opacity: 0, x: px, y: py, scale: 0.12, rotation: giro, transformOrigin: st.origen });
+    G.timeline({ onComplete: alLlegar })
+      .to(capas, { opacity: 1, duration: 0.12 }, 0)
+      .to(capas, { keyframes: [
+        { x: mx, y: my, scale: armadura ? 0.75 : 0.6, rotation: giro * 0.4, duration: armadura ? 0.3 : 0.4, ease: "power1.out" },
+        { x: 0, y: 0, scale: 1, rotation: 0, duration: armadura ? 0.26 : 0.45, ease: armadura ? "power3.in" : "back.out(1.4)" },
+      ] }, 0);
+  }
+  const VUELA_SEG = { magia: 0.85, armadura: 0.56 };
+
+  // cintas de luz en espiral alrededor de ella (estilo Sailor Moon)
+  function cintasElla() {
+    const capa = capaSvg("capa-cintas", figuras.mujer.el);
+    const [cx] = PIES.mujer;
+    const espiral = (fase, ancho) => {
+      const pts = [];
+      for (let k = 0; k <= 120; k++) {
+        const t = k / 120;
+        pts.push([cx + ancho * Math.sin(t * Math.PI * 7 + fase) * (0.75 + 0.25 * Math.sin(t * 3)), 1050 - t * 960]);
+      }
+      return aD(pts);
+    };
+    capa.innerHTML = [["#ff7eb6", 0, 250], ["#ffd23f", 2.1, 220], ["#ffffff", 4.2, 270]]
+      .map(([c, fase, ancho]) => `<path d="${espiral(fase, ancho)}" pathLength="1" fill="none" stroke="${c}" stroke-width="13"
+        stroke-linecap="round" stroke-dasharray="0.35 1" stroke-dashoffset="1.35"/>`).join("");
+    return capa;
+  }
+
+  // ella: entra al portal, se vuelve luz y gira; sale brillando y cada prenda
+  // llega desde un lado distinto, girando, y encaja con un destello
   function transformarElla(tl) {
     const ella = figuras.mujer;
-    const suyas = ella.prendas.filter((p) => !p.fija && !/borla/.test(p.pieza.id)).sort((a, b) => b.pieza.caja[3] - a.pieza.caja[3]);
+    const suyas = ordenVuelo(ella.prendas.filter((p) => !p.fija && !/borla/.test(p.pieza.id)), VUELO_ELLA);
     if (suave) {  // con "reducir movimiento": fundido sencillo
       tl.to(ella.casual, { opacity: 0, duration: 0.6 }).to(suyas.map((p) => p.capa), { opacity: 1, duration: 0.6 }, "<");
       return;
     }
     const [ox, oy] = pct(PIES.mujer);
+    const cintas = cintasElla();
     tl.addLabel("ella")
       .add(ubicarPortal, "ella")
       .fromTo(".portal", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: "back.out(1.6)" }, "ella")
@@ -908,16 +975,23 @@ const EVENTO = {
     caminar(tl, ella.el, "mujer", true, "ella+=0.5");
     tl.addLabel("dentro")
       .to(ella.luz, { opacity: 1, duration: 0.3 }, "dentro")
+      .set(ella.casual, { display: "none" }, "dentro+=0.3")
       .to(ella.el, { scaleX: -ESCALA_PORTAL, transformOrigin: `${ox}% ${oy}%`, duration: 0.2, ease: "sine.inOut", yoyo: true, repeat: 3 }, "dentro+=0.1")
-      .to(".portal", { "--brillo": 1.6, duration: 0.3, yoyo: true, repeat: 1 }, "dentro+=0.3")
-      .to(ella.luz, { opacity: 0, duration: 0.3 }, "dentro+=1.0");
+      .to(".portal", { "--brillo": 1.6, duration: 0.3, yoyo: true, repeat: 1 }, "dentro+=0.3");
+    // sale del portal todavía hecha luz
+    caminar(tl, ella.el, "mujer", false, "dentro+=1.0");
+    tl.addLabel("vestir", ">")
+      .set(cintas, { opacity: 1 }, "vestir")
+      .to($$("path", cintas), { attr: { "stroke-dashoffset": -0.4 }, duration: 1.8, ease: "power1.inOut", stagger: 0.15 }, "vestir")
+      .to(cintas, { opacity: 0, duration: 0.4 }, "vestir+=1.9");
     suyas.forEach((st, i) => {
-      const cubre = casualDe(st.pieza.id);
-      tl.fromTo(st.capa, { opacity: 0 }, { opacity: 1, duration: 0.3, immediateRender: false }, `dentro+=${1.0 + i * 0.12}`);
-      if (cubre.length) tl.set(cubre, { display: "none" }, "<+0.15");
+      const lado = VUELO_ELLA[st.pieza.id] || [i % 2 ? 1 : -1, -0.5, 180];
+      tl.add(() => desdePortal(st, lado, false, () => chispas(centro(st), 12)), `vestir+=${(0.3 + i * 0.32).toFixed(2)}`);
     });
-    tl.add(() => { const g = geoPortal(); window.Carnaval && Carnaval.picado(g.cx, g.bottom - 40, 26); }, "dentro+=1.1");
-    caminar(tl, ella.el, "mujer", false, "dentro+=1.7");
+    const fin = `vestir+=${(0.3 + (suyas.length - 1) * 0.32 + VUELA_SEG.magia + 0.15).toFixed(2)}`;
+    tl.to(ella.luz, { opacity: 0, duration: 0.5 }, fin)
+      .add(() => { chispas(CENTRO_ELLA, 30); }, fin)
+      .fromTo(ella.el, { scale: 1 }, { scale: 1.05, transformOrigin: `${ox}% ${oy}%`, duration: 0.18, yoyo: true, repeat: 1, ease: "power2.out", immediateRender: false }, fin);
   }
 
   // rosas rojas: cruzan toda la pantalla en curva y se posan en la montera
@@ -1014,34 +1088,57 @@ const EVENTO = {
     tic();
   }
 
-  // él: entra al portal, se carga de electricidad azul y sale vestido
+  // impacto de una pieza de armadura: anillo de choque + destello metálico
+  function impacto(st, capa) {
+    const [x, y] = centro(st);
+    const anillo = document.createElementNS(NS, "circle");
+    Object.entries({ cx: x, cy: y, r: 10, fill: "none", stroke: "#d6f1ff", "stroke-width": 10 }).forEach(([k, v]) => anillo.setAttribute(k, v));
+    capa.appendChild(anillo);
+    G.to(anillo, { attr: { r: 150, "stroke-width": 1 }, opacity: 0, duration: 0.45, ease: "power2.out", onComplete: () => anillo.remove() });
+    G.fromTo(st.capa, { filter: "brightness(2.6) saturate(.4)" }, { filter: "brightness(1) saturate(1)", duration: 0.4, ease: "power2.out",
+      onComplete: () => (st.capa.style.filter = "") });
+    if (window.Carnaval) { const [px, py] = enPantalla([x, y]); Carnaval.picado(px, py, 10, ["#ffffff", "#d6f1ff", "#4cc9f0", "#ffd23f"]); }
+  }
+
+  // él: entra al portal y se carga de electricidad; sale como silueta eléctrica
+  // y las piezas del traje llegan como una armadura, encajando con impacto
   function correrEl(tl) {
     const el = figuras.varon;
-    const suyas = el.prendas.filter((p) => !p.fija && !/borla/.test(p.pieza.id))
-      .sort((a, b) => b.pieza.caja[3] - a.pieza.caja[3]);
+    const suyas = ordenVuelo(el.prendas.filter((p) => !p.fija && !/borla/.test(p.pieza.id)), VUELO_EL);
     if (suave) {
       tl.to(el.casual, { opacity: 0, duration: 0.6 }).to(suyas.map((p) => p.capa), { opacity: 1, duration: 0.6 }, "<");
       return;
     }
     const [ox, oy] = pct(PIES.varon);
+    const choques = capaSvg("capa-choques", el.el);
     caminar(tl, el.el, "varon", true, "+=0.2");
+    const armar = 0.3, cada = 0.42;
+    const total = 2.3 + armar + (suyas.length - 1) * cada + VUELA_SEG.armadura + 0.3;
     tl.addLabel("eldentro")
       .fromTo(el.aura, { opacity: 0, scale: 0.4, transformOrigin: `${ox}% ${oy}%` },
         { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, "eldentro")
       .fromTo(el.dorado, { opacity: 0 }, { opacity: 0.92, duration: 0.3 }, "eldentro+=0.1")
-      .add(() => tormenta(el.rayos, 1.6), "eldentro")
+      .add(() => tormenta(el.rayos, total), "eldentro")
       .to(".portal", { "--brillo": 1.6, duration: 0.25, yoyo: true, repeat: 3 }, "eldentro+=0.2")
-      .set(el.casual, { display: "none" }, "eldentro+=1.1")
-      .to(el.dorado, { opacity: 0, duration: 0.4 }, "eldentro+=1.1");
+      .set(el.casual, { display: "none" }, "eldentro+=0.4");
+    // sale del portal cargado
+    caminar(tl, el.el, "varon", false, "eldentro+=1.1");
     suyas.forEach((st, i) => {
-      tl.fromTo(st.capa, { opacity: 0 }, { opacity: 1, duration: 0.3, immediateRender: false }, `eldentro+=${1.1 + i * 0.1}`);
+      const lado = VUELO_EL[st.pieza.id] || [i % 2 ? 1 : -1, -0.6, 30];
+      tl.add(() => desdePortal(st, lado, true, () => {
+        impacto(st, choques);
+        // el golpe sacude el cuerpo
+        G.fromTo(el.el, { x: lado[0] > 0 ? -9 : 9 }, { x: 0, duration: 0.3, ease: "elastic.out(1, 0.35)" });
+      }), `eldentro+=${(2.3 + armar + i * cada).toFixed(2)}`);
     });
-    tl.to(el.aura, { opacity: 0, duration: 0.5 }, "eldentro+=1.6")
-      .add(() => { const g = geoPortal(); window.Carnaval && Carnaval.picado(g.cx, g.bottom - 40, 30); }, "eldentro+=1.2");
-    caminar(tl, el.el, "varon", false, "eldentro+=1.6");
-    // el portal se cierra
-    tl.to(".portal", { scale: 0, opacity: 0, duration: 0.6, ease: "back.in(1.6)" }, ">-0.3")
+    const llegaUltima = 2.3 + armar + (suyas.length - 1) * cada + VUELA_SEG.armadura;
+    const fin = `eldentro+=${(llegaUltima + 0.15).toFixed(2)}`;
+    // el portal se cierra cuando ya salió la última pieza
+    tl.to(".portal", { scale: 0, opacity: 0, duration: 0.6, ease: "back.in(1.6)" }, `eldentro+=${(llegaUltima + 0.1).toFixed(2)}`)
       .to(".transfo", { opacity: 0, duration: 0.6 }, "<");
+    tl.to(el.dorado, { opacity: 0, duration: 0.4 }, fin)
+      .to(el.aura, { scale: 1.35, opacity: 0, duration: 0.6, ease: "power2.out" }, fin)
+      .add(() => { chispas(CENTRO_EL, 30); }, fin);
   }
 
   function entradaInvitacion() {
@@ -1055,7 +1152,7 @@ const EVENTO = {
       .from("#img-arco", { opacity: 0, duration: 1.2, ease: "power3.out" }, "<")
       .add(() => window.__arcoEntrada(), "-=0.2")
       // los danzantes llegan con ropa casual (el traje queda escondido)
-      .set(prendas.filter((p) => !p.fija).map((p) => p.capa), { opacity: 0 }, 0)
+      .set(prendas.filter((p) => !p.fija).flatMap((p) => [p.capa, p.base].filter(Boolean)), { opacity: 0 }, 0)
       .from([...$$(".capa-sombra, .capa-cuerpo, .capa-casual"), ...prendas.filter((p) => p.fija).map((p) => p.capa)],
         { opacity: 0, y: 40, duration: 0.7, ease: "power2.out" }, "-=0.3")
       // ¡Modo luriguayo!
