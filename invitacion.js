@@ -160,7 +160,7 @@ const EVENTO = {
       RUTA.tramos.forEach((t, i) => {
         L.polyline(t.pts, { color: "#fff", weight: 10, opacity: 0.9 }).addTo(mapa);
         capas.push(L.polyline(t.pts, { color: COLORES_TRAMO[i], weight: 6, opacity: 1,
-          dashArray: i === 0 ? "1 12" : null, lineCap: "round" }).addTo(mapa));
+          dashArray: "1 12", lineCap: "round" }).addTo(mapa));
       });
       const hora12c = (h) => { const [x, y] = h.split(":").map(Number);
         return new Date(2000, 0, 1, x, y).toLocaleTimeString("es-PE", { hour: "numeric", minute: "2-digit" }); };
@@ -176,17 +176,6 @@ const EVENTO = {
         L.marker(pos, { icon: icono }).addTo(mapa).bindPopup(`<b>${nombre}</b>${hora ? "<br>" + hora12c(hora) : ""}`);
       });
       mapa.fitBounds(L.featureGroup(capas).getBounds(), { padding: [30, 30] });
-      // la línea se dibuja recorriendo cada tramo
-      capas.forEach((c, i) => {
-        const p = c.getElement();
-        if (!p || !p.getTotalLength) return;
-        const largo = p.getTotalLength();
-        if (i === 0) return;  // el primero es punteado: aparece con un fundido
-        p.style.strokeDasharray = largo;
-        p.style.strokeDashoffset = largo;
-        p.style.transition = "stroke-dashoffset 1.6s ease-in-out .6s";
-        requestAnimationFrame(() => (p.style.strokeDashoffset = 0));
-      });
     };
     const obs = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { crear(); obs.disconnect(); } },
       { rootMargin: "300px" });

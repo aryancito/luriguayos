@@ -561,3 +561,5 @@ body.escena-completa .cambio { top: 30%; }
 .pin-ruta b { margin-top: 3px; padding: 1px 6px; border-radius: 999px; white-space: nowrap; font: 800 11px "Baloo 2", sans-serif;
   color: #fff; background: #1f2430; }
 .tramo b { font-weight: 600; }
+
+.leyenda i { background: none !important; height: 0; border-top: 6px dotted var(--c); }
