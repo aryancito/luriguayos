@@ -579,3 +579,21 @@ body.escena-completa .cambio { top: 30%; }
 
 /* cámara de la escena: se acerca al portal durante el cambio de traje */
 .camara { position: absolute; inset: 0; transform-origin: 0 0; will-change: transform; }
+
+/* encabezado compacto: insignia al lado del nombre; encabezado + escena caben en una pantalla */
+.cabecera { flex-direction: row; justify-content: center; align-items: center; text-align: left; gap: 10px; padding: 36px 52px 0; }
+.cab-logo { width: 74px; height: 74px; }
+.kicker { font-size: 10px; letter-spacing: .16em; }
+.titulo { font-size: 19px; line-height: 1.05; }
+.subtitulo { font-size: 10.5px; margin-top: 1px; }
+.mensaje { padding: 4px 12px 6px; }
+.te-invita { font-size: 14px; line-height: 1.2; }
+.pre-evento { font-size: 18px; margin: 0 0 -6px; }
+.evento { font-size: clamp(38px, 11.5vw, 62px); margin: 2px 0 0; }
+.lema { margin-top: 3px; font-size: 11px; }
+.hero { max-height: max(300px, calc(100svh - var(--alto-cab, 250px) - 22px)); }
+body.escena-completa .invitacion > .hero { max-height: none; }
+.deco-bombo   { width: 92px; top: 30px; left: -34px; }
+.deco-zampona { width: 74px; top: 30px; right: -26px; }
+.deco-quena   { width: 120px; top: 150px; left: -74px; }
+.deco-charango{ width: 52px; top: 132px; right: -10px; }

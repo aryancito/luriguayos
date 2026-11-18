@@ -1182,20 +1182,35 @@ const EVENTO = {
       btn.addEventListener("click", seguir);
     });
     tl.addPause();
-    // ETAPA 2: la escena se encoge hasta su lugar y aparece la invitación
+    // ETAPA 2: la escena se encoge hasta su lugar y aparece la invitación.
+    // Fluidez: los danzantes no se redibujan en cada cuadro (toman ya su ancho
+    // final y se escalan con transform) y el encabezado entra por partes.
+    const ENCABEZADO = [".cab-logo", ".portada > *", ".te-invita", ".pre-evento", ".evento", ".lema"];
+    const ENCOGE_SEG = 1.1;
     tl.add(() => {
       $("#btn-ver").hidden = true;
-      const hero = $(".hero");
+      const hero = $(".hero"), pareja = $(".pareja");
+      const w0 = pareja.getBoundingClientRect().width;
       const estado = window.Flip ? Flip.getState(hero) : null;
+      // el encabezado se oculta y entra por partes mientras la escena se acomoda
+      // (animación propia, lanzada aquí: no depende de la pausa del timeline)
+      G.set(ENCABEZADO, { opacity: 0, y: -14 });
+      G.to(ENCABEZADO, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out", stagger: 0.08, delay: 0.4 });
       document.body.classList.remove("escena-completa");
-      if (estado) Flip.from(estado, { duration: 1, ease: "power3.inOut" });
+      medirCabecera();
+      if (!estado) return;
+      const w1 = pareja.getBoundingClientRect().width;
+      Object.assign(pareja.style, { width: `${w1}px`, left: "50%", right: "auto", marginLeft: `${-w1 / 2}px` });
+      Flip.from(estado, { duration: ENCOGE_SEG, ease: "power3.inOut",
+        onComplete: () => ["width", "left", "right", "marginLeft"].forEach((k) => (pareja.style[k] = "")) });
+      G.fromTo(pareja, { scale: w0 / w1 }, { scale: 1, transformOrigin: "50% 100%", duration: ENCOGE_SEG, ease: "power3.inOut" });
     });
-    // el encabezado ya está detrás de la escena (nunca queda en blanco); al
-    // descubrirse saluda: la insignia gira y las letras de "Recepción" saltan
+    // el encabezado aparece por partes mientras la escena se acomoda; la insignia
+    // gira y las letras de "Recepción" saltan
     tl.addLabel("inv", "<")
-      .fromTo(".cab-logo", { rotation: -25 }, { rotation: 0, duration: 0.9, ease: "elastic.out(1, 0.4)" }, "inv+=0.3")
-      .to(".letra", { y: -14, duration: 0.18, ease: "power2.out", yoyo: true, repeat: 1, stagger: 0.04 }, "inv+=0.4")
-      .from(".inst", { scale: 0.6, rotation: () => G.utils.random(-20, 20), duration: 0.6, ease: "back.out(2)", stagger: 0.04 }, "inv+=0.3")
+      .fromTo(".cab-logo", { rotation: -25 }, { rotation: 0, duration: 0.9, ease: "elastic.out(1, 0.4)" }, "inv+=0.4")
+      .to(".letra", { y: -14, duration: 0.18, ease: "power2.out", yoyo: true, repeat: 1, stagger: 0.04 }, "inv+=1.0")
+      .from(".inst", { scale: 0.6, rotation: () => G.utils.random(-20, 20), duration: 0.6, ease: "back.out(2)", stagger: 0.04 }, "inv+=0.6")
       .from(".pareja-pista", { opacity: 0, y: 10, duration: 0.4 });
     tl.add(() => {
       G.to(".pareja", { y: -6, duration: 1.6, yoyo: true, repeat: -1, ease: "sine.inOut" });
@@ -1207,6 +1222,14 @@ const EVENTO = {
       G.to(".letra", { y: -4, duration: 0.5, yoyo: true, repeat: -1, ease: "sine.inOut", stagger: { each: 0.08, repeat: -1, yoyo: true } });
     });
     revelarAlBajar();
+  }
+
+  // la escena toma el alto que queda bajo el encabezado (todo cabe en una pantalla)
+  function medirCabecera() {
+    const m = $(".mensaje");
+    if (!m || document.body.classList.contains("escena-completa")) return;
+    const fin = m.getBoundingClientRect().bottom + scrollY - ($(".invitacion").getBoundingClientRect().top + scrollY);
+    document.documentElement.style.setProperty("--alto-cab", `${Math.round(fin)}px`);
   }
 
   function revelarAlBajar() {
@@ -1233,6 +1256,9 @@ const EVENTO = {
   const semillaInicial = Math.floor(Math.random() * 1e6);
 
   rellenar();
+  medirCabecera();
+  addEventListener("resize", medirCabecera);
+  if (document.fonts) document.fonts.ready.then(medirCabecera);
   contarVisita();
 
   // foto real del arco: se funde sobre el vectorial cuando ya está descargada
