@@ -573,43 +573,57 @@ const EVENTO = {
     }, 50);
   }
 
-  // debe llamarse desde un toque (los celulares bloquean el audio sin gesto)
-  function iniciarMusica() {
+  // reanuda el contexto de audio y reproduce; si el navegador lo bloquea
+  // (sin toque del usuario) la promesa falla
+  function sonar() {
     prepararGanancia();
-    if (ganancia) ganancia.ctx.resume();
+    const ctx = ganancia && ganancia.ctx;
+    // sin gesto, resume() puede quedar pendiente para siempre: se espera como máximo 600 ms
+    const reanudar = ctx && ctx.state !== "running"
+      ? Promise.race([ctx.resume(), new Promise((r) => setTimeout(r, 600))]) : Promise.resolve();
+    return Promise.all([musica.play(), reanudar]).then(() => {
+      // un contexto suspendido deja el audio "sonando" en silencio: cuenta como bloqueado
+      if (ctx && ctx.state !== "running") throw new Error("audio bloqueado");
+    });
+  }
+  function marcarSonando(sonando) {
+    btnMusica.hidden = false;
+    btnMusica.classList.toggle("mudo", !sonando);
+    btnMusica.setAttribute("aria-label", sonando ? "Pausar música" : "Reproducir música");
+  }
+  // espera el primer toque en cualquier parte para empezar la música
+  function sonarAlTocar() {
+    const alTocar = (e) => {
+      if (e.target.closest && e.target.closest("#btn-musica")) return;
+      quitar();
+      if (!btnMusica.classList.contains("mudo")) return;
+      sonar().then(() => { marcarSonando(true); fundirA(VOLUMEN_FINAL, 3); }).catch(() => sonarAlTocar());
+    };
+    const quitar = () => ["pointerdown", "touchend", "click", "keydown"].forEach((t) => document.removeEventListener(t, alTocar, true));
+    ["pointerdown", "touchend", "click", "keydown"].forEach((t) => document.addEventListener(t, alTocar, true));
+  }
+
+  // intenta sonar al abrir; los celulares bloquean el audio sin gesto:
+  // entonces arranca con el primer toque en la página o con el botón ▶
+  function iniciarMusica() {
     vol.v = 0;
     aplicarVolumen(0);
-    musica.play().then(() => {
-      btnMusica.hidden = false;
+    sonar().then(() => {
+      marcarSonando(true);
       fundirA(VOLUMEN_FINAL, SUBIDA_SEG);
     }).catch(() => {
-      // sin un toque el celular no deja sonar: arranca con el primer toque en la página
-      btnMusica.hidden = false;
-      btnMusica.classList.add("mudo");
-      const alTocar = (e) => {
-        if (e.target.closest && e.target.closest("#btn-musica")) return;
-        document.removeEventListener("pointerdown", alTocar, true);
-        if (!musica.paused) return;
-        if (ganancia) ganancia.ctx.resume();
-        musica.play().then(() => {
-          btnMusica.classList.remove("mudo");
-          btnMusica.setAttribute("aria-label", "Pausar música");
-          fundirA(VOLUMEN_FINAL, 3);
-        }).catch(() => {});
-      };
-      document.addEventListener("pointerdown", alTocar, true);
+      musica.pause();
+      marcarSonando(false);
+      sonarAlTocar();
     });
   }
 
   btnMusica.addEventListener("click", () => {
-    if (musica.paused) {
-      musica.play();
-      btnMusica.classList.remove("mudo");
-      btnMusica.setAttribute("aria-label", "Pausar música");
-      fundirA(VOLUMEN_FINAL, 2);
+    if (btnMusica.classList.contains("mudo")) {
+      marcarSonando(true);
+      sonar().then(() => fundirA(VOLUMEN_FINAL, 2)).catch(() => marcarSonando(false));
     } else {
-      btnMusica.classList.add("mudo");
-      btnMusica.setAttribute("aria-label", "Reproducir música");
+      marcarSonando(false);
       fundirA(0, 0.6, () => musica.pause());
     }
   });
@@ -617,7 +631,7 @@ const EVENTO = {
   document.addEventListener("visibilitychange", () => {
     if (btnMusica.hidden || btnMusica.classList.contains("mudo")) return;
     if (document.hidden) musica.pause();
-    else { vol.v = 0; aplicarVolumen(0); musica.play().then(() => fundirA(VOLUMEN_FINAL, 2)).catch(() => {}); }
+    else { vol.v = 0; aplicarVolumen(0); sonar().then(() => fundirA(VOLUMEN_FINAL, 2)).catch(() => {}); }
   });
 
   /* ---------- colores que se alternan solos ---------- */
@@ -1149,8 +1163,8 @@ const EVENTO = {
     $("#sobre").remove();
     document.body.classList.remove("cerrado");
     $("#invitacion").setAttribute("aria-hidden", "false");
-    btnMusica.hidden = false;
-    btnMusica.classList.add("mudo");
+    marcarSonando(false);
+    sonarAlTocar();
     if (G) entradaInvitacion(); else colorear(semillaInicial, false);
   } else {
     window.__abrir = abrirSobre;
