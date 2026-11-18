@@ -848,9 +848,13 @@ const EVENTO = {
     const r = $("#lienzo").getBoundingClientRect(), [px, py] = pct([x, y]);
     return [r.left + r.width * px / 100, r.top + r.height * py / 100];
   };
-  const chispas = (punto, n = 14) => {
+  const enFigura = (fig, [x, y]) => {          // punto de la escena dentro de una figura transformada
+    const r = figuras[fig].el.getBoundingClientRect(), [px, py] = pct([x, y]);
+    return [r.left + r.width * px / 100, r.top + r.height * py / 100];
+  };
+  const chispas = (punto, n = 14, fig) => {
     if (!window.Carnaval) return;
-    const [x, y] = enPantalla(punto);
+    const [x, y] = fig ? enFigura(fig, punto) : enPantalla(punto);
     Carnaval.picado(x, y, n, ["#ffffff", "#ffd23f", "#f72585", "#3a86ff", "#8ac926"]);
   };
   const casualDe = (id) => casual.filter((c) => c.reemplaza === id).map((c) => c.capa);
@@ -901,22 +905,36 @@ const EVENTO = {
   const ordenVuelo = (lista, vuelo) => Object.keys(vuelo).map((id) => lista.find((p) => p.pieza.id === id)).filter(Boolean)
     .concat(lista.filter((p) => !(p.pieza.id in vuelo)));
 
-  // una prenda sale del portal, se abre hacia su lado y vuelve a encajar en el cuerpo
-  function desdePortal(st, [dx, dy, giro], armadura, alLlegar) {
-    const g = geoPortal();
-    const [sx, sy] = enPantalla(centro(st));
-    const px = g.cx - sx, py = (g.top + g.bottom) / 2 - sy;
-    const mx = px * 0.45 + dx * innerWidth * 0.42, my = py * 0.45 + dy * innerHeight * 0.28;
+  /* Cámara: se acerca hasta que el portal llena la pantalla; el cambio de
+   * traje ocurre ahí dentro y luego vuelve a la vista completa. */
+  const ZOOM_SEG = 0.9;
+  function camaraAlPortal(tl, pos) {
+    let v = null;
+    const medir = () => {
+      if (v) return v;
+      const g = geoPortal(), W = g.r.width, H = g.r.height;
+      const cx = g.cx - g.r.left, cy = (g.top + g.bottom) / 2 - g.r.top;
+      const Z = Math.min(2.6, (0.86 * H) / (g.bottom - g.top), (1.6 * W) / g.ancho);
+      return (v = { x: W / 2 - Z * cx, y: H / 2 - Z * cy - H * 0.03, Z });
+    };
+    tl.to(".camara", { x: () => medir().x, y: () => medir().y, scale: () => medir().Z,
+      duration: ZOOM_SEG, ease: "power2.inOut" }, pos);
+  }
+  const camaraVuelve = (tl, pos) => tl.to(".camara", { x: 0, y: 0, scale: 1, duration: ZOOM_SEG, ease: "power2.inOut" }, pos);
+
+  // una prenda llega desde su lado (dentro del portal) y encaja en el cuerpo
+  function encajar(st, fig, [dx, dy, giro], armadura, alLlegar) {
+    const s = figuras[fig].el.getBoundingClientRect().width / figuras[fig].el.offsetWidth || 1; // escala en pantalla
     const capas = [st.capa, st.base].filter(Boolean);
-    G.set(capas, { opacity: 0, x: px, y: py, scale: 0.12, rotation: giro, transformOrigin: st.origen });
+    const lejos = armadura ? 0.7 : 0.55;
+    G.set(capas, { opacity: 0, x: (dx * innerWidth * lejos) / s, y: (dy * innerHeight * lejos) / s,
+      scale: armadura ? 1.3 : 0.4, rotation: giro, transformOrigin: st.origen });
     G.timeline({ onComplete: alLlegar })
       .to(capas, { opacity: 1, duration: 0.12 }, 0)
-      .to(capas, { keyframes: [
-        { x: mx, y: my, scale: armadura ? 0.75 : 0.6, rotation: giro * 0.4, duration: armadura ? 0.3 : 0.4, ease: "power1.out" },
-        { x: 0, y: 0, scale: 1, rotation: 0, duration: armadura ? 0.26 : 0.45, ease: armadura ? "power3.in" : "back.out(1.4)" },
-      ] }, 0);
+      .to(capas, { x: 0, y: 0, scale: 1, rotation: 0, duration: armadura ? 0.42 : 0.7,
+        ease: armadura ? "power3.in" : "back.out(1.3)" }, 0);
   }
-  const VUELA_SEG = { magia: 0.85, armadura: 0.56 };
+  const VUELA_SEG = { magia: 0.7, armadura: 0.42 };
 
   // cintas de luz en espiral alrededor de ella (estilo Sailor Moon)
   function cintasElla() {
@@ -947,30 +965,36 @@ const EVENTO = {
     }
     const [ox, oy] = pct(PIES.mujer);
     const cintas = cintasElla();
+    const otro = figuras.varon.el;
     tl.addLabel("ella")
       .add(ubicarPortal, "ella")
       .fromTo(".portal", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: "back.out(1.6)" }, "ella")
       .to(".transfo", { opacity: 0.55, duration: 0.8 }, "ella");
     caminar(tl, ella.el, "mujer", true, "ella+=0.5");
-    tl.addLabel("dentro")
-      .to(ella.luz, { opacity: 1, duration: 0.3 }, "dentro")
-      .set(ella.casual, { display: "none" }, "dentro+=0.3")
-      .to(ella.el, { scaleX: -ESCALA_PORTAL, transformOrigin: `${ox}% ${oy}%`, duration: 0.2, ease: "sine.inOut", yoyo: true, repeat: 3 }, "dentro+=0.1")
-      .to(".portal", { "--brillo": 1.6, duration: 0.3, yoyo: true, repeat: 1 }, "dentro+=0.3");
-    // sale del portal todavía hecha luz
-    caminar(tl, ella.el, "mujer", false, "dentro+=1.0");
-    tl.addLabel("vestir", ">")
+    // la cámara entra al portal (él se desvanece para no tapar el borde)
+    tl.addLabel("dentro");
+    camaraAlPortal(tl, "dentro");
+    tl.to(otro, { opacity: 0, duration: 0.5 }, "dentro")
+      .to(ella.luz, { opacity: 1, duration: 0.3 }, "dentro+=0.5")
+      .set(ella.casual, { display: "none" }, "dentro+=0.8")
+      .to(ella.el, { scaleX: -ESCALA_PORTAL, transformOrigin: `${ox}% ${oy}%`, duration: 0.2, ease: "sine.inOut", yoyo: true, repeat: 3 }, "dentro+=0.6")
+      .to(".portal", { "--brillo": 1.6, duration: 0.3, yoyo: true, repeat: 1 }, "dentro+=0.8");
+    tl.addLabel("vestir", "dentro+=1.4")
       .set(cintas, { opacity: 1 }, "vestir")
       .to($$("path", cintas), { attr: { "stroke-dashoffset": -0.4 }, duration: 1.8, ease: "power1.inOut", stagger: 0.15 }, "vestir")
       .to(cintas, { opacity: 0, duration: 0.4 }, "vestir+=1.9");
     suyas.forEach((st, i) => {
       const lado = VUELO_ELLA[st.pieza.id] || [i % 2 ? 1 : -1, -0.5, 180];
-      tl.add(() => desdePortal(st, lado, false, () => chispas(centro(st), 12)), `vestir+=${(0.3 + i * 0.32).toFixed(2)}`);
+      tl.add(() => encajar(st, "mujer", lado, false, () => chispas(centro(st), 12, "mujer")), `vestir+=${(0.3 + i * 0.32).toFixed(2)}`);
     });
-    const fin = `vestir+=${(0.3 + (suyas.length - 1) * 0.32 + VUELA_SEG.magia + 0.15).toFixed(2)}`;
+    const finSeg = 0.3 + (suyas.length - 1) * 0.32 + VUELA_SEG.magia + 0.15;
+    const fin = `vestir+=${finSeg.toFixed(2)}`;
     tl.to(ella.luz, { opacity: 0, duration: 0.5 }, fin)
-      .add(() => { chispas(CENTRO_ELLA, 30); }, fin)
-      .fromTo(ella.el, { scale: 1 }, { scale: 1.05, transformOrigin: `${ox}% ${oy}%`, duration: 0.18, yoyo: true, repeat: 1, ease: "power2.out", immediateRender: false }, fin);
+      .add(() => { chispas(CENTRO_ELLA, 30, "mujer"); }, fin);
+    // la cámara vuelve y ella sale vestida
+    camaraVuelve(tl, `vestir+=${(finSeg + 0.5).toFixed(2)}`);
+    tl.to(otro, { opacity: 1, duration: 0.5 }, "<0.3");
+    caminar(tl, ella.el, "mujer", false, `vestir+=${(finSeg + 0.8).toFixed(2)}`);
   }
 
   // rosas rojas: cruzan toda la pantalla en curva y se posan en la montera
@@ -1076,7 +1100,7 @@ const EVENTO = {
     G.to(anillo, { attr: { r: 150, "stroke-width": 1 }, opacity: 0, duration: 0.45, ease: "power2.out", onComplete: () => anillo.remove() });
     G.fromTo(st.capa, { filter: "brightness(2.6) saturate(.4)" }, { filter: "brightness(1) saturate(1)", duration: 0.4, ease: "power2.out",
       onComplete: () => (st.capa.style.filter = "") });
-    if (window.Carnaval) { const [px, py] = enPantalla([x, y]); Carnaval.picado(px, py, 10, ["#ffffff", "#d6f1ff", "#4cc9f0", "#ffd23f"]); }
+    if (window.Carnaval) { const [px, py] = enFigura("varon", [x, y]); Carnaval.picado(px, py, 10, ["#ffffff", "#d6f1ff", "#4cc9f0", "#ffd23f"]); }
   }
 
   // él: entra al portal y se carga de electricidad; sale como silueta eléctrica
@@ -1090,34 +1114,37 @@ const EVENTO = {
     }
     const [ox, oy] = pct(PIES.varon);
     const choques = capaSvg("capa-choques", el.el);
+    const otra = figuras.mujer.el;
     caminar(tl, el.el, "varon", true, "+=0.2");
-    const armar = 0.3, cada = 0.42;
-    const total = 2.3 + armar + (suyas.length - 1) * cada + VUELA_SEG.armadura + 0.3;
-    tl.addLabel("eldentro")
+    const armar = 1.3, cada = 0.45;
+    const llegaUltima = armar + (suyas.length - 1) * cada + VUELA_SEG.armadura;
+    tl.addLabel("eldentro");
+    camaraAlPortal(tl, "eldentro");
+    tl.to(otra, { opacity: 0, duration: 0.5 }, "eldentro")
       .fromTo(el.aura, { opacity: 0, scale: 0.4, transformOrigin: `${ox}% ${oy}%` },
-        { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, "eldentro")
-      .fromTo(el.dorado, { opacity: 0 }, { opacity: 0.92, duration: 0.3 }, "eldentro+=0.1")
-      .add(() => tormenta(el.rayos, total), "eldentro")
-      .to(".portal", { "--brillo": 1.6, duration: 0.25, yoyo: true, repeat: 3 }, "eldentro+=0.2")
-      .set(el.casual, { display: "none" }, "eldentro+=0.4");
-    // sale del portal cargado
-    caminar(tl, el.el, "varon", false, "eldentro+=1.1");
+        { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, "eldentro+=0.5")
+      .fromTo(el.dorado, { opacity: 0 }, { opacity: 0.92, duration: 0.3 }, "eldentro+=0.6")
+      .add(() => tormenta(el.rayos, llegaUltima - 0.2), "eldentro+=0.5")
+      .to(".portal", { "--brillo": 1.6, duration: 0.25, yoyo: true, repeat: 3 }, "eldentro+=0.7")
+      .set(el.casual, { display: "none" }, "eldentro+=0.9");
     suyas.forEach((st, i) => {
       const lado = VUELO_EL[st.pieza.id] || [i % 2 ? 1 : -1, -0.6, 30];
-      tl.add(() => desdePortal(st, lado, true, () => {
+      tl.add(() => encajar(st, "varon", lado, true, () => {
         impacto(st, choques);
-        // el golpe sacude el cuerpo
-        G.fromTo(el.el, { x: lado[0] > 0 ? -9 : 9 }, { x: 0, duration: 0.3, ease: "elastic.out(1, 0.35)" });
-      }), `eldentro+=${(2.3 + armar + i * cada).toFixed(2)}`);
+        // el golpe sacude el cuerpo (xPercent: no altera su lugar dentro del portal)
+        G.fromTo(el.el, { xPercent: lado[0] > 0 ? -1.5 : 1.5 }, { xPercent: 0, duration: 0.3, ease: "elastic.out(1, 0.35)" });
+      }), `eldentro+=${(armar + i * cada).toFixed(2)}`);
     });
-    const llegaUltima = 2.3 + armar + (suyas.length - 1) * cada + VUELA_SEG.armadura;
     const fin = `eldentro+=${(llegaUltima + 0.15).toFixed(2)}`;
-    // el portal se cierra cuando ya salió la última pieza
-    tl.to(".portal", { scale: 0, opacity: 0, duration: 0.6, ease: "back.in(1.6)" }, `eldentro+=${(llegaUltima + 0.1).toFixed(2)}`)
-      .to(".transfo", { opacity: 0, duration: 0.6 }, "<");
     tl.to(el.dorado, { opacity: 0, duration: 0.4 }, fin)
       .to(el.aura, { scale: 1.35, opacity: 0, duration: 0.6, ease: "power2.out" }, fin)
-      .add(() => { chispas(CENTRO_EL, 30); }, fin);
+      .add(() => { chispas(CENTRO_EL, 30, "varon"); }, fin);
+    // la cámara vuelve, sale vestido y el portal se cierra
+    camaraVuelve(tl, `eldentro+=${(llegaUltima + 0.6).toFixed(2)}`);
+    tl.to(otra, { opacity: 1, duration: 0.5 }, "<0.3");
+    caminar(tl, el.el, "varon", false, `eldentro+=${(llegaUltima + 0.9).toFixed(2)}`);
+    tl.to(".portal", { scale: 0, opacity: 0, duration: 0.6, ease: "back.in(1.6)" }, `eldentro+=${(llegaUltima + 1.9).toFixed(2)}`)
+      .to(".transfo", { opacity: 0, duration: 0.6 }, "<");
   }
 
   function entradaInvitacion() {

@@ -576,3 +576,6 @@ body.escena-completa .cambio { top: 30%; }
 /* transformación: cintas de luz (ella) y anillos de impacto (él) */
 .capa-cintas { opacity: 0; pointer-events: none; filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 12px #f72585); }
 .capa-choques { pointer-events: none; filter: drop-shadow(0 0 6px #4cc9f0); }
+
+/* cámara de la escena: se acerca al portal durante el cambio de traje */
+.camara { position: absolute; inset: 0; transform-origin: 0 0; will-change: transform; }
