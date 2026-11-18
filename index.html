@@ -10,7 +10,8 @@
 <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Cinzel:wght@700&family=Lilita+One&family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="icono.png?v=11">
 <link rel="apple-touch-icon" href="logo-marca.png?v=11">
-<link rel="stylesheet" href="invitacion.css?v=69">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="invitacion.css?v=70">
 </head>
 <body class="cerrado">
 
@@ -204,7 +205,7 @@
           <div class="paso-btns"><a id="pg-conc-mapa" target="_blank" rel="noopener">Ver en el mapa</a><a id="pg-conc-ruta" target="_blank" rel="noopener">Cómo llegar</a></div>
         </div>
       </li>
-      <li class="tramo"><span>💃 Recorrido danzando hacia la iglesia</span></li>
+      <li class="tramo"><span>💃 Recorrido danzando hacia la iglesia <b id="tr-1"></b></span></li>
       <li class="paso" data-paso="misa">
         <span class="paso-hora" id="pg-misa-hora"></span>
         <span class="paso-punto" aria-hidden="true">⛪</span>
@@ -216,7 +217,7 @@
           <div class="paso-btns"><a id="pg-misa-mapa" target="_blank" rel="noopener">Ver en el mapa</a><a id="pg-misa-ruta" target="_blank" rel="noopener">Cómo llegar</a></div>
         </div>
       </li>
-      <li class="tramo"><span>🚶 Luego vamos juntos al local · aprox. 5 min a pie</span></li>
+      <li class="tramo"><span>🚶 Luego vamos juntos al local <b id="tr-2"></b></span></li>
       <li class="paso" data-paso="hora">
         <span class="paso-hora" id="pg-rec-hora"></span>
         <span class="paso-punto" aria-hidden="true">🎉</span>
@@ -247,9 +248,12 @@
   <section class="ubicacion revelar" id="ubicacion">
     <h3>Ruta del recorrido</h3>
     <div class="mapa">
-      <iframe id="mapa-iframe" title="Mapa del lugar de la recepción" loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+      <div id="mapa-ruta" role="img" aria-label="Mapa del recorrido por tramos"></div>
     </div>
+    <ul class="leyenda">
+      <li><i style="background:#f72585"></i>Concentración → Iglesia <span id="ley-1"></span></li>
+      <li><i style="background:#056b30"></i>Iglesia → Raíces Juleñas <span id="ley-2"></span></li>
+    </ul>
     <a class="boton principal" id="btn-como-llegar" target="_blank" rel="noopener">Abrir el recorrido en Google Maps</a>
   </section>
 
@@ -282,10 +286,12 @@
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script defer src="data/ruta.js?v=1"></script>
 <script defer src="data/escena.js?v=24"></script>
 <script defer src="motor.js?v=4"></script>
 <script defer src="silueta.js?v=1"></script>
 <script defer src="carnaval.js?v=3"></script>
-<script defer src="invitacion.js?v=76"></script>
+<script defer src="invitacion.js?v=78"></script>
 </body>
 </html>

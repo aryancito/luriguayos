@@ -95,9 +95,7 @@ const EVENTO = {
       const misa = (EVENTO.misaUbicacion || []).join(",");
       const conc = (EVENTO.concUbicacion || []).join(",");
       const origen = conc || misa;
-      $("#mapa-iframe").src = origen
-        ? `https://maps.google.com/maps?saddr=${origen}&daddr=${conc && misa ? misa + "+to:" : ""}${coords}&dirflg=w&hl=es&output=embed`
-        : `https://maps.google.com/maps?q=${coords}&z=17&hl=es&output=embed`;
+      dibujarRuta();
       $("#btn-como-llegar").href = origen
         ? `https://www.google.com/maps/dir/?api=1&origin=${origen}&destination=${coords}${conc && misa ? "&waypoints=" + misa : ""}&travelmode=walking`
         : `https://www.google.com/maps/dir/?api=1&destination=${coords}&travelmode=driving`;
@@ -135,6 +133,64 @@ const EVENTO = {
       $("#btn-mapa").hidden = true;
     }
 
+  }
+
+  /* ---------- mapa del recorrido: un color por tramo (Leaflet + OpenStreetMap) ---------- */
+  const COLORES_TRAMO = ["#f72585", "#056b30"];
+  let mapaHecho = false;
+  function dibujarRuta() {
+    const caja = $("#mapa-ruta");
+    if (!caja || !window.L || !window.RUTA) return;
+    const fmt = (t) => `· ${t.m >= 1000 ? (t.m / 1000).toFixed(1).replace(".", ",") + " km" : t.m + " m"} · ~${t.min} min a pie`;
+    RUTA.tramos.forEach((t, i) => {
+      const a = $(`#ley-${i + 1}`), b = $(`#tr-${i + 1}`);
+      if (a) a.textContent = fmt(t);
+      if (b) b.textContent = fmt(t);
+    });
+    // el mapa se crea al acercarse a él (ahorra datos y evita medir un contenedor oculto)
+    const crear = () => {
+      if (mapaHecho) return;
+      mapaHecho = true;
+      const mapa = L.map(caja, { scrollWheelZoom: false, tap: true, zoomControl: true, attributionControl: true });
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }).addTo(mapa);
+      const capas = [];
+      RUTA.tramos.forEach((t, i) => {
+        L.polyline(t.pts, { color: "#fff", weight: 10, opacity: 0.9 }).addTo(mapa);
+        capas.push(L.polyline(t.pts, { color: COLORES_TRAMO[i], weight: 6, opacity: 1,
+          dashArray: i === 0 ? "1 12" : null, lineCap: "round" }).addTo(mapa));
+      });
+      const hora12c = (h) => { const [x, y] = h.split(":").map(Number);
+        return new Date(2000, 0, 1, x, y).toLocaleTimeString("es-PE", { hour: "numeric", minute: "2-digit" }); };
+      const puntos = [
+        [EVENTO.concUbicacion, "🚩", "Concentración", EVENTO.concentracion, COLORES_TRAMO[0]],
+        [EVENTO.misaUbicacion, "⛪", "Misa de Salud", EVENTO.misa, COLORES_TRAMO[0]],
+        [EVENTO.ubicacion, "🎉", "Recepción", EVENTO.hora, COLORES_TRAMO[1]],
+      ];
+      puntos.forEach(([pos, ico, nombre, hora, col]) => {
+        if (!pos) return;
+        const icono = L.divIcon({ className: "pin-ruta", iconSize: [40, 40], iconAnchor: [20, 20],
+          html: `<span style="--c:${col}">${ico}</span><b>${hora ? hora12c(hora) : ""}</b>` });
+        L.marker(pos, { icon: icono }).addTo(mapa).bindPopup(`<b>${nombre}</b>${hora ? "<br>" + hora12c(hora) : ""}`);
+      });
+      mapa.fitBounds(L.featureGroup(capas).getBounds(), { padding: [30, 30] });
+      // la línea se dibuja recorriendo cada tramo
+      capas.forEach((c, i) => {
+        const p = c.getElement();
+        if (!p || !p.getTotalLength) return;
+        const largo = p.getTotalLength();
+        if (i === 0) return;  // el primero es punteado: aparece con un fundido
+        p.style.strokeDasharray = largo;
+        p.style.strokeDashoffset = largo;
+        p.style.transition = "stroke-dashoffset 1.6s ease-in-out .6s";
+        requestAnimationFrame(() => (p.style.strokeDashoffset = 0));
+      });
+    };
+    const obs = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { crear(); obs.disconnect(); } },
+      { rootMargin: "300px" });
+    obs.observe(caja);
   }
 
   /* ---------- contador de visitas (servicio gratuito Abacus) ----------

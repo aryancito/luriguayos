@@ -547,3 +547,17 @@ body.escena-completa .cambio { top: 30%; }
 .cuenta-estado { margin: 4px 0 0; font: 800 20px "Baloo 2", sans-serif; color: #056b30; text-transform: none; letter-spacing: 0; }
 .cuenta-numeros[hidden], .cuenta-estado[hidden] { display: none; }
 .cuenta p.cuenta-estado { font: 800 20px "Baloo 2", sans-serif; color: #056b30; text-transform: none; letter-spacing: 0; opacity: 1; margin: 4px 0 0; }
+
+/* mapa del recorrido por tramos */
+#mapa-ruta { width: 100%; height: 100%; }
+.mapa { position: relative; z-index: 0; }
+.leyenda { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 6px; font-size: 13px; font-weight: 600; color: var(--tinta); }
+.leyenda li { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.leyenda i { width: 26px; height: 6px; border-radius: 3px; flex: none; }
+.leyenda span { color: var(--tinta-2); font-weight: 500; }
+.pin-ruta { display: grid; justify-items: center; }
+.pin-ruta span { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-size: 20px;
+  background: #fff; box-shadow: 0 0 0 3px var(--c), 0 4px 10px rgba(0, 0, 0, .3); }
+.pin-ruta b { margin-top: 3px; padding: 1px 6px; border-radius: 999px; white-space: nowrap; font: 800 11px "Baloo 2", sans-serif;
+  color: #fff; background: #1f2430; }
+.tramo b { font-weight: 600; }
