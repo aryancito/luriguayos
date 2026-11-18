@@ -815,7 +815,9 @@ const EVENTO = {
         if (!listo()) return setTimeout(empezar, 120);
         G.timeline({ onComplete: () => {
           G.to(".sello", { scale: 1.04, duration: 0.9, yoyo: true, repeat: -1, ease: "sine.inOut" });
-          setTimeout(abrirSobre, 1500); // se abre solo (también se puede tocar antes)
+          // se abre con un toque (así también suena la música); ?auto la abre sola (grabación del video)
+          if (params.has("auto")) setTimeout(abrirSobre, 1500);
+          else G.to(".sobre-pista", { opacity: 0.45, duration: 0.8, yoyo: true, repeat: -1, ease: "sine.inOut" });
           G.to(".la-brillo", { attr: { x: 760 }, opacity: 1, duration: 1.4, repeat: -1, repeatDelay: 2.2, ease: "power2.inOut" });
         } })
           .from(".la-fondo", { scale: 0, svgOrigin: "300 300", duration: 0.5, ease: "back.out(1.8)" })
