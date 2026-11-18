@@ -527,3 +527,7 @@ body.escena-completa .cambio { top: 30%; }
 .credito { margin: 0; padding: 14px 16px calc(18px + env(safe-area-inset-bottom)); text-align: center;
   font-size: 12px; line-height: 1.6; color: #8a8696; background: #f6f4f9; border-top: 1px solid var(--linea); }
 .credito a { color: #056b30; font-weight: 700; text-decoration: none; }
+
+.franja .f-lado b br + * { display: inline; }
+.franja .f-lado b { font-size: 14px; }
+.franja #d-hora { font-size: 12.5px; } .franja .f-lado { padding-left: 4px; padding-right: 4px; }

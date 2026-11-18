@@ -14,15 +14,20 @@ const EVENTO = {
   organiza: "Asociación de Luriguayos Revelación Fanáticos Juli",
   tipo: "Recepción",
   previo: "Misa de Salud y",      // línea sobre el título grande
-  mensaje: "Iniciaremos con la Misa de Salud y luego compartiremos una velada de música, danza y tradición. ¡Acompáñanos!",
+  mensaje: "Nos concentramos para salir juntos en recorrido, asistimos a la Misa de Salud y luego compartimos una velada de música, danza y tradición. ¡Acompáñanos!",
   fecha: "2026-11-28",
-  misa: "16:00",                  // la invitación empieza con la misa
+  concentracion: "15:00",         // punto de partida del recorrido
+  concLugar: "Lugar de concentración",
+  concDetalle: "Av. Túpac Amaru s/n, frente al cementerio",
+  concUbicacion: [-16.2174985, -69.4707984],
+  concMapa: "https://www.google.com/maps/place/16%C2%B013'03.0%22S+69%C2%B028'14.9%22W/@-16.2175076,-69.4711048,20z/data=!4m4!3m3!8m2!3d-16.2174985!4d-69.4707984?hl=es",
+  misa: "16:00",
   misaLugar: "Iglesia San Pedro de Juli",
   misaDetalle: "Catedral San Pedro Mártir · Plaza de Juli",
   misaUbicacion: [-16.2126925, -69.4604377],
   misaMapa: "https://www.google.com/maps/place/Catedral+de+San+Pedro+M%C3%A1rtir+de+Verona+-+Prelatura+de+Juli/@-16.2126927,-69.4612901,19z/data=!4m10!1m2!2m1!1sIglesia+San+Pedro+de+Juli,!3m6!1s0x915db28c1d75ca79:0xbf92695cbb5efa98!8m2!3d-16.2126925!4d-69.4604377!15sChpJZ2xlc2lhIFNhbiBQZWRybyBkZSBKdWxpLJIBD2NhdGhvbGljX2NodXJjaOABAA!16s%2Fg%2F11b8_n7yrt?hl=es",
   hora: "17:00",                  // recepción
-  duracionHoras: 6,               // desde la misa
+  duracionHoras: 7,               // desde la concentración
   lugar: "Raíces Juleñas",
   direccion: "Jr. Ilave 379, Juli",
   ubicacion: [-16.2150047, -69.4623332],
@@ -47,8 +52,9 @@ const EVENTO = {
   // fecha y hora en hora local (new Date("AAAA-MM-DD") la tomaría como UTC y
   // en Perú mostraría el día anterior)
   const [anio, mes, dia] = (EVENTO.fecha || "").split("-").map(Number);
-  const [hh, mm] = (EVENTO.misa || EVENTO.hora || "").split(":").map(Number);
-  const conHora = !!(EVENTO.misa || EVENTO.hora) && !isNaN(hh);
+  const inicio = EVENTO.concentracion || EVENTO.misa || EVENTO.hora || "";
+  const [hh, mm] = inicio.split(":").map(Number);
+  const conHora = !!inicio && !isNaN(hh);
   const hora12 = (h) => { const [a, b] = h.split(":").map(Number);
     return new Date(2000, 0, 1, a, b).toLocaleTimeString("es-PE", { hour: "numeric", minute: "2-digit" }); };
   const fecha = anio ? new Date(anio, mes - 1, dia, conHora ? hh : 0, conHora ? mm || 0 : 0) : null;
@@ -68,7 +74,8 @@ const EVENTO = {
       $("#d-dia").textContent = fecha.getDate();
       $("#d-mes-largo").textContent = fecha.toLocaleDateString("es-PE", { month: "long" });
       $("#d-mes").textContent = fecha.toLocaleDateString("es-PE", { month: "short" }).replace(".", "").toUpperCase();
-      if (conHora) $("#d-hora").innerHTML = (EVENTO.misa ? `<span>Misa ${hora12(EVENTO.misa)}</span>` : "")
+      if (conHora) $("#d-hora").innerHTML = (EVENTO.concentracion ? `<span>Concentración ${hora12(EVENTO.concentracion)}</span>` : "")
+        + (EVENTO.misa ? `<span>Misa ${hora12(EVENTO.misa)}</span>` : "")
         + (EVENTO.hora ? `<span>Recepción ${hora12(EVENTO.hora)}</span>` : "");
       else { $("#d-hora").textContent = "Por confirmar"; $("#d-hora").classList.add("pendiente"); }
     } else {
@@ -86,16 +93,24 @@ const EVENTO = {
     // mapa de Google con el punto del local y botón de ruta
     if (coords) {
       const misa = (EVENTO.misaUbicacion || []).join(",");
-      $("#mapa-iframe").src = misa
-        ? `https://maps.google.com/maps?saddr=${misa}&daddr=${coords}&dirflg=w&hl=es&output=embed`
+      const conc = (EVENTO.concUbicacion || []).join(",");
+      const origen = conc || misa;
+      $("#mapa-iframe").src = origen
+        ? `https://maps.google.com/maps?saddr=${origen}&daddr=${conc && misa ? misa + "+to:" : ""}${coords}&dirflg=w&hl=es&output=embed`
         : `https://maps.google.com/maps?q=${coords}&z=17&hl=es&output=embed`;
-      $("#btn-como-llegar").href = misa
-        ? `https://www.google.com/maps/dir/?api=1&origin=${misa}&destination=${coords}&travelmode=walking`
+      $("#btn-como-llegar").href = origen
+        ? `https://www.google.com/maps/dir/?api=1&origin=${origen}&destination=${coords}${conc && misa ? "&waypoints=" + misa : ""}&travelmode=walking`
         : `https://www.google.com/maps/dir/?api=1&destination=${coords}&travelmode=driving`;
       // programa del día
       const hora12b = (h) => { const [a, b] = h.split(":").map(Number);
         return new Date(2000, 0, 1, a, b).toLocaleTimeString("es-PE", { hour: "numeric", minute: "2-digit" }); };
       const ruta = (c) => `https://www.google.com/maps/dir/?api=1&destination=${c}&travelmode=walking`;
+      if (EVENTO.concentracion) {
+        $("#pg-conc-hora").textContent = hora12b(EVENTO.concentracion);
+        $("#pg-conc-lugar").textContent = EVENTO.concDetalle;
+        $("#pg-conc-mapa").href = EVENTO.concMapa || `https://www.google.com/maps/search/?api=1&query=${conc}`;
+        $("#pg-conc-ruta").href = ruta(conc);
+      }
       if (EVENTO.misa) {
         $("#pg-misa-hora").textContent = hora12b(EVENTO.misa);
         $("#pg-misa-lugar").textContent = EVENTO.misaLugar;

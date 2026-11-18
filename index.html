@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Cinzel:wght@700&family=Lilita+One&family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="icono.png?v=11">
 <link rel="apple-touch-icon" href="logo-marca.png?v=11">
-<link rel="stylesheet" href="invitacion.css?v=65">
+<link rel="stylesheet" href="invitacion.css?v=67">
 </head>
 <body class="cerrado">
 
@@ -187,12 +187,23 @@
       <span id="d-fecha" class="f-fecha"></span>
       <span id="d-mes" hidden></span>
     </div>
-    <div class="f-lado"><small>Lugares</small><b>Iglesia San Pedro<br>Raíces Juleñas</b></div>
+    <div class="f-lado"><small>Lugares</small><b>Av. Túpac Amaru<br>Iglesia San Pedro<br>Raíces Juleñas</b></div>
   </section>
   <!-- programa del día: línea de tiempo -->
   <section class="programa revelar" id="programa">
     <h3>Programa</h3>
     <ol class="linea">
+      <li class="paso">
+        <span class="paso-hora" id="pg-conc-hora"></span>
+        <span class="paso-punto" aria-hidden="true">🚩</span>
+        <div class="paso-info">
+          <b>Concentración</b>
+          <span id="pg-conc-lugar"></span>
+          <small>Punto de partida del recorrido</small>
+          <div class="paso-btns"><a id="pg-conc-mapa" target="_blank" rel="noopener">Ver en el mapa</a><a id="pg-conc-ruta" target="_blank" rel="noopener">Cómo llegar</a></div>
+        </div>
+      </li>
+      <li class="tramo"><span>💃 Recorrido danzando hacia la iglesia</span></li>
       <li class="paso">
         <span class="paso-hora" id="pg-misa-hora"></span>
         <span class="paso-punto" aria-hidden="true">⛪</span>
@@ -230,12 +241,12 @@
   </section>
 
   <section class="ubicacion revelar" id="ubicacion">
-    <h3>Ruta: de la iglesia al local</h3>
+    <h3>Ruta del recorrido</h3>
     <div class="mapa">
       <iframe id="mapa-iframe" title="Mapa del lugar de la recepción" loading="lazy"
         referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
     </div>
-    <a class="boton principal" id="btn-como-llegar" target="_blank" rel="noopener">Abrir la ruta en Google Maps</a>
+    <a class="boton principal" id="btn-como-llegar" target="_blank" rel="noopener">Abrir el recorrido en Google Maps</a>
   </section>
 
   <section class="acciones revelar">
@@ -271,6 +282,6 @@
 <script defer src="motor.js?v=4"></script>
 <script defer src="silueta.js?v=1"></script>
 <script defer src="carnaval.js?v=3"></script>
-<script defer src="invitacion.js?v=73"></script>
+<script defer src="invitacion.js?v=74"></script>
 </body>
 </html>
