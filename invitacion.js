@@ -216,17 +216,31 @@ const EVENTO = {
     const base = "https://abacus.jasoncameron.dev";
     const clave = "aryancito-luriguayos/invitacion";
     if (!/github\.io$/.test(location.hostname)) return;
-    let visto = false;
-    try { visto = localStorage.getItem("luriguayos-visto") === "1"; } catch {}
-    fetch(`${base}/${visto ? "get" : "hit"}/${clave}`)
+    let visto = false, ultimo = null;
+    try {
+      visto = localStorage.getItem("luriguayos-visto") === "1";
+      ultimo = Number(localStorage.getItem("luriguayos-visitas-n")) || null;
+    } catch {}
+    const mostrar = (n) => {
+      $("#visitas-n").textContent = n.toLocaleString("es-PE");
+      $("#visitas").hidden = false;
+    };
+    // el servicio gratuito a veces se cae o tarda: se espera como máximo 5 s y,
+    // si no responde, se muestra el último número conocido en este navegador
+    const corte = new AbortController();
+    const reloj = setTimeout(() => corte.abort(), 5000);
+    fetch(`${base}/${visto ? "get" : "hit"}/${clave}`, { signal: corte.signal })
       .then((r) => r.json())
       .then((d) => {
-        if (typeof d.value !== "number") return;
-        try { localStorage.setItem("luriguayos-visto", "1"); } catch {}
-        $("#visitas-n").textContent = d.value.toLocaleString("es-PE");
-        $("#visitas").hidden = false;
+        if (typeof d.value !== "number") throw new Error("sin número");
+        try {
+          localStorage.setItem("luriguayos-visto", "1");   // ya contado: no vuelve a sumar
+          localStorage.setItem("luriguayos-visitas-n", String(d.value));
+        } catch {}
+        mostrar(d.value);
       })
-      .catch(() => {});
+      .catch(() => { if (ultimo) mostrar(ultimo); })
+      .finally(() => clearTimeout(reloj));
   }
 
   /* ---------- cuenta regresiva ---------- */
@@ -1319,9 +1333,13 @@ const EVENTO = {
   /* ---------- arranque ---------- */
   const semillaInicial = Math.floor(Math.random() * 1e6);
 
-  // ¿este navegador ya fue contado por el contador de visitas? (se lee antes de contar)
+  // ¿este navegador ya visitó la página? Marca propia, independiente del contador
+  // (que a veces no responde); también vale la marca antigua del contador
   let yaContado = params.has("saltar");
-  try { yaContado = yaContado || localStorage.getItem("luriguayos-visto") === "1"; } catch {}
+  try {
+    yaContado = yaContado || localStorage.getItem("luriguayos-visita") === "1" || localStorage.getItem("luriguayos-visto") === "1";
+    localStorage.setItem("luriguayos-visita", "1");
+  } catch {}
   rellenar();
   medirCabecera();
   addEventListener("resize", medirCabecera);
