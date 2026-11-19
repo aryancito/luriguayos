@@ -210,11 +210,10 @@ const EVENTO = {
     obs.observe(caja);
   }
 
-  /* ---------- contador de visitas (servicio gratuito Abacus) ----------
+  /* ---------- contador de visitas (propio: Cloudflare Worker + D1, carpeta contador/) ----------
    * Cada navegador suma una sola vez; las pruebas locales no cuentan. */
   function contarVisita() {
-    const base = "https://abacus.jasoncameron.dev";
-    const clave = "aryancito-luriguayos/invitacion";
+    const base = "https://luriguayos-contador.aryan-opb.workers.dev";
     if (!/github\.io$/.test(location.hostname)) return;
     let visto = false, ultimo = null;
     try {
@@ -225,11 +224,11 @@ const EVENTO = {
       $("#visitas-n").textContent = n.toLocaleString("es-PE");
       $("#visitas").hidden = false;
     };
-    // el servicio gratuito a veces se cae o tarda: se espera como máximo 5 s y,
+    // si el contador no responde, se espera como máximo 5 s y
     // si no responde, se muestra el último número conocido en este navegador
     const corte = new AbortController();
     const reloj = setTimeout(() => corte.abort(), 5000);
-    fetch(`${base}/${visto ? "get" : "hit"}/${clave}`, { signal: corte.signal })
+    fetch(`${base}/${visto ? "get" : "hit"}`, { signal: corte.signal })
       .then((r) => r.json())
       .then((d) => {
         if (typeof d.value !== "number") throw new Error("sin número");
