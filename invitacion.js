@@ -222,6 +222,7 @@ const EVENTO = {
     } catch {}
     const mostrar = (n) => {
       $("#visitas-n").textContent = n.toLocaleString("es-PE");
+      $("#visitas-txt").textContent = n === 1 ? "visita" : "visitas";
       $("#visitas").hidden = false;
     };
     // si el contador no responde, se espera como máximo 5 s y
