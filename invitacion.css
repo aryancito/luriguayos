@@ -597,3 +597,11 @@ body.escena-completa .invitacion > .hero { max-height: none; }
 .deco-zampona { width: 74px; top: 30px; right: -26px; }
 .deco-quena   { width: 120px; top: 150px; left: -74px; }
 .deco-charango{ width: 52px; top: 132px; right: -10px; }
+
+/* saltar la animación: arriba a la derecha, discreto */
+.btn-saltar { position: fixed; top: calc(10px + env(safe-area-inset-top)); right: 10px; z-index: 1000;
+  padding: 5px 11px; border: 0; border-radius: 999px; cursor: pointer;
+  font: 700 12px "Baloo 2", system-ui, sans-serif; letter-spacing: .02em; color: #fff;
+  background: rgba(20, 24, 32, .32); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); opacity: .75; }
+.btn-saltar:hover, .btn-saltar:focus-visible { opacity: 1; }
+.btn-saltar[hidden] { display: none; }

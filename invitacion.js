@@ -701,6 +701,8 @@ const EVENTO = {
 
   /* ---------- animaciones ---------- */
   let abierto = false;
+  let tlLogo = null, tlSobre = null, tlEntrada = null;   // se detienen al saltar
+  let saltado = false;
   function abrirSobre() {
     if (abierto) return;
     abierto = true;
@@ -708,7 +710,7 @@ const EVENTO = {
     const sobre = $("#sobre");
     const mostrar = () => { document.body.classList.remove("cerrado"); $("#invitacion").setAttribute("aria-hidden", "false"); };
     if (!G || sinAnimacion) { window.__arcoEntrada(); mostrar(); $$(".capa-rosas").forEach((r) => (r.style.opacity = 1)); iniciarCarnaval(); sobre.remove(); $$(".capa-casual").forEach((c) => (c.style.display = "none")); colorear(semillaInicial, false); revelarTodo(); return; }
-    G.timeline()
+    tlSobre = G.timeline()
       .to(".sello", { scale: 1.25, duration: 0.15, ease: "power1.out" })
       .to(".sello", { scale: 0, rotation: 200, opacity: 0, duration: 0.35, ease: "back.in(2)" })
       .to(".solapa", { scaleY: -1, duration: 0.5, ease: "power2.inOut" }, "-=0.1")
@@ -717,6 +719,54 @@ const EVENTO = {
       .to(".sobre-cuerpo", { y: "70vh", rotation: 6, opacity: 0, duration: 0.7, ease: "power2.in" }, "+=0.05")
       .to(sobre, { opacity: 0, duration: 0.4, onComplete: () => sobre.remove() }, "-=0.3")
       .add(() => { mostrar(); entradaInvitacion(); }, "-=0.4");
+  }
+
+  /* ---------- saltar la animación ----------
+   * Solo para quien ya visitó la página (el contador ya lo contó en este
+   * navegador). Detiene todo y deja la invitación armada; el toque inicia la música. */
+  const quitarBotonSaltar = () => { const b = $("#btn-saltar"); if (b) b.remove(); };
+  function saltarAnimacion() {
+    if (saltado) return;
+    saltado = abierto = true;
+    quitarBotonSaltar();
+    if (musica.paused) iniciarMusica();
+    [tlLogo, tlSobre, tlEntrada].forEach((t) => t && t.kill());
+    const sobre = $("#sobre");
+    if (sobre) sobre.remove();
+    $$(".rosas-vuelan").forEach((r) => r.remove());
+    document.body.classList.remove("cerrado", "cargando", "escena-completa");
+    $("#invitacion").setAttribute("aria-hidden", "false");
+    window.__arcoEntrada();
+    // escena en su estado final: cámara normal, portal cerrado, sin efectos
+    G.killTweensOf([".hero", ".pareja", ".camara", ".portal", ".transfo", "#cambio", ...ENCABEZADO]);
+    G.set([".hero", ".pareja", ".camara"], { clearProps: "all" });
+    G.set([".portal", ".transfo", "#cambio"], { opacity: 0 });
+    G.set(ENCABEZADO, { clearProps: "opacity,transform" });
+    // lo que las animaciones dejan preparado desde que se crean (oculto, girado o
+    // pequeño) vuelve a su estado normal aunque se salte antes de que corran
+    const preparados = ["#img-fondo", "#img-arco", "#img-arco-real", ".capa-sombra", ".capa-cuerpo",
+      ".pareja-pista", ".inst", ".cab-logo", ".letra"];
+    G.killTweensOf(preparados);
+    G.set(preparados, { clearProps: "opacity,transform,rotate,scale,translate" });
+    $("#btn-ver").hidden = true;
+    ["mujer", "varon"].forEach((f) => G.set(figuras[f].el, { clearProps: "transform,opacity" }));
+    G.set([figuras.mujer.luz, figuras.varon.dorado, figuras.varon.aura].filter(Boolean), { opacity: 0 });
+    if (figuras.varon.rayos) figuras.varon.rayos.innerHTML = "";
+    $$(".capa-cintas, .capa-choques").forEach((c) => (c.style.opacity = 0));
+    // vestidos: sin ropa deportiva, con todas las prendas, el pompón y las rosas
+    $$(".capa-casual").forEach((c) => (c.style.display = "none"));
+    const capas = prendas.flatMap((p) => [p.capa, p.base].filter(Boolean));
+    G.killTweensOf(capas);
+    G.set(capas, { clearProps: "transform,filter", opacity: 1 });
+    $$(".capa-rosas").forEach((r) => (r.style.opacity = 1));
+    iniciarCarnaval();
+    colorear(semillaInicial, false);
+    alternarColores();
+    medirCabecera();
+    scrollTo(0, 0);
+    revelarAlBajar();
+    animacionesReposo();
+    G.fromTo("#invitacion", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power1.out", clearProps: "opacity" });
   }
 
   /* ---------- sobre: la insignia se arma pieza por pieza ---------- */
@@ -750,7 +800,7 @@ const EVENTO = {
     capa.setAttribute("transform", ef.getAttribute("transform") || "");
     const fin = performance.now() + segundos * 1000;
     const tic = () => {
-      if (performance.now() > fin) { capa.innerHTML = ""; return; }
+      if (saltado || performance.now() > fin) { capa.innerHTML = ""; return; }
       let html = "";
       trazos.forEach((p) => {
         const L = p.getTotalLength();
@@ -812,8 +862,9 @@ const EVENTO = {
       $$(":scope > path, :scope > circle", ef).forEach((n) => (n.style.opacity = 0));
       const listo = () => document.body.classList.contains("listo") || !$("#cargador");
       const empezar = () => {
+        if (saltado) return;
         if (!listo()) return setTimeout(empezar, 120);
-        G.timeline({ onComplete: () => {
+        tlLogo = G.timeline({ onComplete: () => {
           G.to(".sello", { scale: 1.04, duration: 0.9, yoyo: true, repeat: -1, ease: "sine.inOut" });
           // se abre con un toque (así también suena la música); ?auto la abre sola (grabación del video)
           if (params.has("auto")) setTimeout(abrirSobre, 1500);
@@ -1085,7 +1136,7 @@ const EVENTO = {
     capa.style.opacity = 1;
     const fin = performance.now() + segundos * 1000;
     const tic = () => {
-      if (performance.now() > fin) { capa.innerHTML = ""; return; }
+      if (saltado || performance.now() > fin) { capa.innerHTML = ""; return; }
       // a veces queda oscuro un instante: parpadeo natural
       if (Math.random() < 0.25) capa.innerHTML = ""; else destelloElectrico(capa);
       setTimeout(tic, 45 + Math.random() * 70);
@@ -1149,9 +1200,11 @@ const EVENTO = {
       .to(".transfo", { opacity: 0, duration: 0.6 }, "<");
   }
 
+  const ENCABEZADO = [".cab-logo", ".portada > *", ".te-invita", ".pre-evento", ".evento", ".lema"];
+
   function entradaInvitacion() {
     iniciarCarnaval();
-    const tl = G.timeline();
+    const tl = (tlEntrada = G.timeline());
     // ETAPA 1: la escena (arco + danzantes) ocupa toda la pantalla
     document.body.classList.add("escena-completa");
     scrollTo(0, 0);
@@ -1187,10 +1240,10 @@ const EVENTO = {
     // ETAPA 2: la escena se encoge hasta su lugar y aparece la invitación.
     // Fluidez: los danzantes no se redibujan en cada cuadro (toman ya su ancho
     // final y se escalan con transform) y el encabezado entra por partes.
-    const ENCABEZADO = [".cab-logo", ".portada > *", ".te-invita", ".pre-evento", ".evento", ".lema"];
     const ENCOGE_SEG = 1.1;
     tl.add(() => {
       $("#btn-ver").hidden = true;
+      quitarBotonSaltar();
       const hero = $(".hero"), pareja = $(".pareja");
       const w0 = pareja.getBoundingClientRect().width;
       const estado = window.Flip ? Flip.getState(hero) : null;
@@ -1214,16 +1267,22 @@ const EVENTO = {
       .to(".letra", { y: -14, duration: 0.18, ease: "power2.out", yoyo: true, repeat: 1, stagger: 0.04 }, "inv+=1.0")
       .from(".inst", { scale: 0.6, rotation: () => G.utils.random(-20, 20), duration: 0.6, ease: "back.out(2)", stagger: 0.04 }, "inv+=0.6")
       .from(".pareja-pista", { opacity: 0, y: 10, duration: 0.4 });
-    tl.add(() => {
-      G.to(".pareja", { y: -6, duration: 1.6, yoyo: true, repeat: -1, ease: "sine.inOut" });
-      // instrumentos que se mecen y el bombo que late al ritmo
-      $$(".inst").forEach((n) => G.to(n, { rotation: `+=${G.utils.random(-6, 6)}`, y: G.utils.random(-6, 6),
-        duration: G.utils.random(1.6, 2.6), yoyo: true, repeat: -1, ease: "sine.inOut" }));
-      G.to(".deco-bombo, .deco-tinya", { scale: 1.06, duration: 0.23, yoyo: true, repeat: -1, ease: "power1.inOut",
-        repeatDelay: 0.24 });
-      G.to(".letra", { y: -4, duration: 0.5, yoyo: true, repeat: -1, ease: "sine.inOut", stagger: { each: 0.08, repeat: -1, yoyo: true } });
-    });
+    tl.add(animacionesReposo);
     revelarAlBajar();
+  }
+
+  // ya en la invitación: la pareja flota, los instrumentos se mecen y el bombo late
+  let enReposo = false;
+  function animacionesReposo() {
+    if (enReposo) return;
+    enReposo = true;
+    G.to(".pareja", { y: -6, duration: 1.6, yoyo: true, repeat: -1, ease: "sine.inOut" });
+    // instrumentos que se mecen y el bombo que late al ritmo
+    $$(".inst").forEach((n) => G.to(n, { rotation: `+=${G.utils.random(-6, 6)}`, y: G.utils.random(-6, 6),
+      duration: G.utils.random(1.6, 2.6), yoyo: true, repeat: -1, ease: "sine.inOut" }));
+    G.to(".deco-bombo, .deco-tinya", { scale: 1.06, duration: 0.23, yoyo: true, repeat: -1, ease: "power1.inOut",
+      repeatDelay: 0.24 });
+    G.to(".letra", { y: -4, duration: 0.5, yoyo: true, repeat: -1, ease: "sine.inOut", stagger: { each: 0.08, repeat: -1, yoyo: true } });
   }
 
   // la escena toma el alto que queda bajo el encabezado (todo cabe en una pantalla)
@@ -1234,7 +1293,10 @@ const EVENTO = {
     document.documentElement.style.setProperty("--alto-cab", `${Math.round(fin)}px`);
   }
 
+  let revelado = false;
   function revelarAlBajar() {
+    if (revelado) return;
+    revelado = true;
     if (!window.ScrollTrigger) return revelarTodo();
     G.registerPlugin(ScrollTrigger);
     $$(".revelar").forEach((n) => {
@@ -1257,6 +1319,9 @@ const EVENTO = {
   /* ---------- arranque ---------- */
   const semillaInicial = Math.floor(Math.random() * 1e6);
 
+  // ¿este navegador ya fue contado por el contador de visitas? (se lee antes de contar)
+  let yaContado = params.has("saltar");
+  try { yaContado = yaContado || localStorage.getItem("luriguayos-visto") === "1"; } catch {}
   rellenar();
   medirCabecera();
   addEventListener("resize", medirCabecera);
@@ -1300,6 +1365,11 @@ const EVENTO = {
   } else {
     window.__abrir = abrirSobre;
     $("#sobre").addEventListener("click", abrirSobre);
+    if (yaContado && G && !params.has("auto")) {
+      const b = $("#btn-saltar");
+      b.hidden = false;
+      b.addEventListener("click", saltarAnimacion);
+    }
     armarLogo();
     // si tocaron el sello mientras cargaba, se abre ya
     if (window.__tocado) { document.body.classList.remove("cargando"); abrirSobre(); }

@@ -11,7 +11,7 @@
 <link rel="icon" href="icono.png?v=11">
 <link rel="apple-touch-icon" href="logo-marca.png?v=11">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="invitacion.css?v=75">
+<link rel="stylesheet" href="invitacion.css?v=76">
 </head>
 <body class="cerrado">
 
@@ -59,6 +59,9 @@
     setTimeout(terminar, 25000); // nunca dejar a nadie esperando para siempre
   })();
 </script>
+
+<!-- saltar la animación (solo si este navegador ya visitó la página) -->
+<button class="btn-saltar" id="btn-saltar" type="button" hidden aria-label="Saltar la animación">Saltar ⏭</button>
 
 <!-- Sobre: pantalla inicial, se abre al tocar -->
 <script>
@@ -297,6 +300,6 @@
 <script defer src="motor.js?v=4"></script>
 <script defer src="silueta.js?v=1"></script>
 <script defer src="carnaval.js?v=3"></script>
-<script defer src="invitacion.js?v=92"></script>
+<script defer src="invitacion.js?v=94"></script>
 </body>
 </html>
